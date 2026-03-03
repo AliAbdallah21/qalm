@@ -1,0 +1,17 @@
+import { createServerClient } from '@/lib/supabase/server'
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
+
+export async function POST(request: Request) {
+    const supabase = await createServerClient()
+
+    // Sign out from Supabase
+    const { error } = await supabase.auth.signOut()
+
+    if (error) {
+        console.error('Logout error:', error)
+    }
+
+    revalidatePath('/', 'layout')
+    redirect('/login')
+}

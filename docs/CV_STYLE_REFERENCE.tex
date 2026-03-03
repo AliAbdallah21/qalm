@@ -1,0 +1,125 @@
+\documentclass[11pt,a4paper,sans]{moderncv}
+\moderncvstyle{banking}
+\moderncvcolor{black}
+\makeatletter
+\renewcommand*{\makecvtitle}{%
+  \recomputecvlengths%
+  \begin{minipage}[t]{\maincolumnwidth}%
+    {\Huge\bfseries\color{black}\@firstname\ \@lastname}%
+    \ifthenelse{\isundefined{\@title}}{}{%
+      \hspace{1em}{\Large\bfseries\color{black}\@title}}%
+  \end{minipage}%
+  \par\vspace{1em}%
+}
+\makeatother\nopagenumbers{}
+\usepackage[utf8]{inputenc}
+\usepackage{ragged2e}
+\usepackage[scale=0.915]{geometry}
+\usepackage{import}
+\usepackage{multicol}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\name{Ali}{Abdallah}
+\newcommand*{\customcventry}[7][.13em]{
+\begin{tabular}{@{}l}
+{\bfseries #4} \\
+{\itshape #3}
+\end{tabular}
+\hfill
+\begin{tabular}{l@{}}
+{\bfseries #5} \\
+{\itshape #2}
+\end{tabular}
+\ifx&#7&%
+\else{\
+\begin{minipage}{\maincolumnwidth}%
+\small#7%
+\end{minipage}}\fi%
+\par\addvspace{#1}}
+
+\newcommand*{\certcventry}[5][.13em]{
+  \begin{tabular*}{\maincolumnwidth}{@{}l@{\extracolsep{\fill}}r}
+    \textbf{#3} & \textbf{\color{blue}\href{#2}{#4}} \\
+  \end{tabular*}
+  \ifx&#5&%
+  \else{%
+  \begin{minipage}{\maincolumnwidth}%
+  \small#5%
+  \end{minipage}}\fi%
+  \par\addvspace{#1}}
+
+\begin{document}
+
+\vspace{-6mm}
+
+\begin{center}
+{\Huge\bfseries\color{black} Ali Abdallah}
+
+\vspace{2mm}
+
+{\Large\bfseries\color{black} RAG \& Agentic AI Engineer}
+
+\vspace{4mm}
+
+\begin{tabular}{ c c c }
+\faMobile\enspace +201015929862 &
+\faEnvelope\enspace aliabdalla2110@gmail.com &
+\faGithub\enspace \color{blue}\href{https://github.com/AliAbdallah21}{GitHub} \\
+\multicolumn{3}{c}{
+\faLinkedin\enspace \color{blue}\href{https://www.linkedin.com/in/ali-abdallah-b5ba792b6/}{LinkedIn}
+}
+\end{tabular}
+\end{center}
+
+\vspace{4mm}
+
+\section{Professional Experience}
+\customcventry{06/2025 ‐ 08/2025}{{\color{blue}{Ollimi AI}}}{AI/ML Engineering Intern}{}{}{
+\begin{itemize}[leftmargin=0.6cm, label={\textbullet}]
+\item Contributed to training and fine-tuning AI Text-to-Speech models tailored to Egyptian dialect for customer support and sales applications, improving accent accuracy by 25\%.
+\item Implemented LoRA fine-tuning techniques on competing models (Coque and CSM from Unsloth AI), optimizing training pipelines and reducing inference time by 30\%.
+\end{itemize}}
+
+\customcventry{01/2025 ‐ present}{{\color{blue}{Preply}}}{AI/ML Programming Instructor}{}{}{
+\begin{itemize}[leftmargin=0.6cm, label={\textbullet}]
+\item Taught AI/ML fundamentals, NLP, and deep learning to 50+ students, specializing in Python, TensorFlow, scikit-learn, and transformer architectures, achieving 90\% student completion rate.
+\item Delivered comprehensive instruction in LLM applications, RAG systems, and vector databases, leading to 10+ successful student capstone projects.
+\end{itemize}}
+
+\section{Skills}
+\begin{itemize}[label=\textbullet]
+    \item \textbf{RAG \& Agentic AI:} LangChain, LlamaIndex, LangGraph, CrewAI, RAG Architectures, Multi-Agent Systems, Tool-Calling Agents, Prompt Engineering, Advanced Retrieval Strategies, Semantic Search.
+    \item \textbf{AI/ML Core:} Python, TensorFlow, PyTorch, scikit-learn, Hugging Face Transformers, OpenAI API, LLM Fine-tuning, NLP, Embedding Models, Vector Search Optimization.
+    \item \textbf{Data \& Deployment:} Vector Databases (ChromaDB, FAISS), PostgreSQL, MongoDB, Docker, Model Quantization, Local LLM Inference.
+    \item \textbf{Development:} JavaScript, React, Node.js, Express, HTML/CSS, Git, Linux, C++, Java.
+\end{itemize}
+
+\section{Certifications}
+
+\certcventry{https://coursera.org/verify/professional-cert/NZG474SOV13H}{IBM RAG \& Agentic AI Professional Certificate (8 Courses)}{Coursera}{
+\begin{itemize}[leftmargin=0.6cm, label={\textbullet}]
+\item Advanced RAG architectures, LangGraph workflows, multi-agent systems with CrewAI, AutoGen, and BeeAI.
+\end{itemize}}
+
+\certcventry{https://www.coursera.org/account/accomplishments/verify/KJZRNTLVA8P2}{LangChain \& LangGraph Advanced RAG Applications}{Coursera}{
+\begin{itemize}[leftmargin=0.6cm, label={\textbullet}]
+\item Production-ready LLM applications, advanced retrieval strategies, and stateful AI workflows.
+\end{itemize}}
+
+\certcventry{https://www.coursera.org/account/accomplishments/verify/UOWPUYUCU6D7}{Advanced LangChain, LLMOps \& Retrieval-Augmented Generation}{Coursera}{
+\begin{itemize}[leftmargin=0.6cm, label={\textbullet}]
+\item LLMOps pipelines, advanced RAG strategies, prompt engineering, and enterprise LLM deployment.
+\end{itemize}}
+
+\section{Education}
+\customcventry{2022-2026}{\color{blue}\href{https://www.miuegypt.edu.eg/}{Misr International University}}{BSc Computer Science, AI/ML Specialization}{Cairo, Egypt}{}{}{}
+
+\section{Projects}
+{\begin{itemize}[label=\textbullet]
+
+\item {\textbf{\href{https://github.com/AliAbdallah21/Chatterbox-Multilingual-TTS-Fine-Tuning}{Chatterbox TTS Egyptian Arabic Fine-Tuning}:} First public fine-tuning of Chatterbox Multilingual TTS for Egyptian dialect using strategic partial fine-tuning techniques. Open-source project with community adoption.}
+\item {\textbf{\href{https://github.com/AliAbdallah21/Food-Recommendation-System}{Intelligent Food Recommendation System}:} RAG-powered CLI application with semantic search using ChromaDB and OpenAI embeddings, achieving 85\% recommendation accuracy with advanced filtering and conversational AI.}
+\item {\textbf{\href{https://github.com/AliAbdallah21/RAG-Icebreaker-Gradio-ChatBot}{RAG Icebreaker Gradio ChatBot}:} Interactive RAG-based conversational AI using Gradio and vector similarity search with semantic retrieval pipeline, improving conversation engagement by 40\% in user testing.}
+
+\end{itemize}}
+\end{document}
