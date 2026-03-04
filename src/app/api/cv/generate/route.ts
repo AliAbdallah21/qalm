@@ -1,5 +1,5 @@
 import { generateCVAction } from '@/features/cv-generator/actions'
-import { generateLatexCVPdf } from '@/features/cv-generator/latex-template'
+import { buildLatexString } from '@/features/cv-generator/latex-template'
 import { createServerClient } from '@/lib/supabase/server'
 import { updateCV } from '@/features/cv-generator/queries'
 import { callAI, parseAIJSON } from '@/lib/ai/client'
@@ -46,37 +46,7 @@ export async function POST(request: Request) {
         const { cv_id, generated_cv } = result.data
         generated_cv.header.title = job_title // Force exact user input
 
-        // 1. Generate PDF Buffer using LaTeX
-        let pdfBuffer: Buffer;
-        try {
-            pdfBuffer = await generateLatexCVPdf(generated_cv)
-        } catch (latexError) {
-            console.error('LaTeX generation failed:', latexError);
-            return Response.json({ error: 'LaTeX compilation failed', code: 'LATEX_ERROR' }, { status: 500 })
-        }
-
-        // 2. Upload to Supabase Storage
-        const sanitize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '')
-        const timestamp = Math.floor(Date.now() / 1000)
-        const fileName = `${user.id}/${sanitize(company_name || 'company')}_${sanitize(job_title || 'role')}_${timestamp}.pdf`
-        const { error: uploadError } = await supabase.storage
-            .from('cvs')
-            .upload(fileName, pdfBuffer, {
-                contentType: 'application/pdf',
-                upsert: true
-            })
-
-        if (uploadError) {
-            console.error('PDF upload failed:', uploadError)
-            return Response.json({ error: 'Failed to upload PDF', code: 'STORAGE_FAILED' }, { status: 500 })
-        }
-
-        // 3. Get Public URL
-        const { data: { publicUrl } } = supabase.storage
-            .from('cvs')
-            .getPublicUrl(fileName)
-
-        // 4. Generate ATS Breakdown
+        // generate ATS Breakdown first
         let atsBreakdown: ATSBreakdown | null = null;
         try {
             const cvText = JSON.stringify(generated_cv)
@@ -90,16 +60,39 @@ export async function POST(request: Request) {
             console.error('ATS Breakdown generation failed:', atsError)
         }
 
-        // 5. Update database
+        const latexSource = buildLatexString(generated_cv)
+
         await updateCV(user.id, cv_id, {
-            pdf_url: publicUrl,
+            latex_source: latexSource,
+            pdf_status: 'pending',
             ats_breakdown: atsBreakdown
         })
+
+        try {
+            await fetch(
+                `https://api.github.com/repos/${process.env.GITHUB_REPO_OWNER}/${process.env.GITHUB_REPO_NAME}/actions/workflows/compile-pdf.yml/dispatches`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${process.env.GITHUB_ACTIONS_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ref: 'main',
+                        inputs: { cv_id: cv_id }
+                    })
+                }
+            )
+        } catch (triggerError) {
+            console.error('GitHub Actions trigger failed:', triggerError)
+        }
 
         return Response.json({
             data: {
                 ...result.data,
-                pdf_url: publicUrl,
+                pdf_url: null,
+                pdf_status: 'pending',
                 ats_breakdown: atsBreakdown
             },
             message: result.message

@@ -37,7 +37,7 @@ export async function getCVHistory(userId: string): Promise<CVGeneration[]> {
 
     const { data, error } = await supabase
         .from('cv_generations')
-        .select('id, user_id, job_title, company_name, job_description, generated_cv, pdf_url, ats_score, model_used, created_at')
+        .select('id, user_id, job_title, company_name, job_description, generated_cv, pdf_url, pdf_status, latex_source, ats_score, model_used, created_at')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
 

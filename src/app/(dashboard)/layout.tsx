@@ -15,10 +15,10 @@ export default async function DashboardLayout({
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 flex">
-            <DashboardSidebar />
+        <div className="min-h-screen bg-bg-secondary flex">
+            <DashboardSidebar userEmail={user.email} />
             <main className="flex-1 w-full lg:pl-64 min-h-screen transition-all">
-                <div className="max-w-[1400px] mx-auto p-4 sm:p-6 lg:p-10">
+                <div className="max-w-[1400px] mx-auto p-4 sm:p-8 lg:p-12 animate-in fade-in transition-all duration-500">
                     {children}
                 </div>
             </main>

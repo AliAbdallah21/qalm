@@ -141,6 +141,10 @@ ${projects.map(proj => `
   return tex;
 }
 
+export function buildLatexString(cvData: StructuredCV): string {
+  return buildLatexCV(cvData);
+}
+
 export async function generateLatexCVPdf(cvData: StructuredCV): Promise<Buffer> {
   const texContent = buildLatexCV(cvData);
   const stream = latex(texContent);

@@ -73,6 +73,9 @@ export interface CVGeneration {
     job_description: string
     generated_cv: StructuredCV
     pdf_url: string | null
+    latex_source?: string
+    pdf_status?: 'pending' | 'compiling' | 'ready' | 'failed'
+    pdf_error?: string
     ats_score: number | null
     ats_breakdown: ATSBreakdown | null
     model_used: string | null

@@ -1,26 +1,173 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Light mode (default) */
+  --bg-primary: #F3F4F6;
+  --bg-secondary: #E9EAEC;
+  --bg-surface: #FFFFFF;
+  --bg-surface-hover: #F9FAFB;
+  --border: #D1D5DB;
+  --border-subtle: #E5E7EB;
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-muted: #6B7280;
+  --accent: #2563EB;
+  --accent-hover: #1D4ED8;
+  --accent-subtle: #DBEAFE;
+  --success: #059669;
+  --success-subtle: #D1FAE5;
+  --warning: #D97706;
+  --warning-subtle: #FEF3C7;
+  --danger: #DC2626;
+  --danger-subtle: #FEE2E2;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+
+  /* Mapping for legacy variables used in the dark overhaul */
+  --background: var(--bg-primary);
+  --foreground: var(--text-primary);
+  --surface-main: var(--bg-primary);
+  --surface-card: var(--bg-surface);
+  --surface-hover: var(--bg-surface-hover);
+  --border-subtle-legacy: var(--border);
+  --accent-blue: var(--accent);
+  --accent-blue-muted: var(--accent-subtle);
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0A0A0A;
+  --bg-secondary: #111111;
+  --bg-surface: #141414;
+  --bg-surface-hover: #1C1C1C;
+  --border: #2A2A2A;
+  --border-subtle: #1F1F1F;
+  --text-primary: #F9FAFB;
+  --text-secondary: #A1A1AA;
+  --text-muted: #71717A;
+  --accent: #3B82F6;
+  --accent-hover: #2563EB;
+  --accent-subtle: #1E3A5F;
+  --success: #10B981;
+  --success-subtle: #064E3B;
+  --warning: #F59E0B;
+  --warning-subtle: #451A03;
+  --danger: #EF4444;
+  --danger-subtle: #450A0A;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+
+  /* Legacy dark overrides */
+  --background: var(--bg-primary);
+  --foreground: var(--text-primary);
+  --surface-main: var(--bg-primary);
+  --surface-card: var(--bg-surface);
+  --surface-hover: var(--bg-surface-hover);
+  --border-subtle-legacy: var(--border);
+  --accent-blue: var(--accent);
+  --accent-blue-muted: var(--accent-subtle);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-surface-hover: var(--bg-surface-hover);
+
+  --color-border-default: var(--border);
+  --color-border-subtle: var(--border-subtle);
+
+  --color-text-main: var(--text-primary);
+  --color-text-sub: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-subtle: var(--accent-subtle);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --shadow-sm: var(--shadow);
+  --shadow-md: var(--shadow-md);
+
+  /* Legacy aliases for immediate compatibility */
+  --color-surface-main: var(--bg-primary);
+  --color-surface-card: var(--bg-surface);
+  --color-surface-hover: var(--bg-surface-hover);
+  --color-accent-blue: var(--accent);
+  --color-accent-blue-muted: var(--accent-subtle);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Custom Utilities for the UI Overhaul */
+@utility glass {
+  background: rgba(20, 20, 20, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-subtle);
+}
+
+@utility grid-pattern {
+  background-image: radial-gradient(var(--border-subtle) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+@utility card-hover {
+  transition: all var(--transition-duration-standard) var(--transition-timing-function-standard);
+
+  &:hover {
+    border-color: var(--border-highlight);
+    background-color: var(--surface-hover);
+    transform: translateY(-1px);
+  }
+}
+
+.animate-in {
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  animation-fill-mode: both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation-name: fade-in;
+}
+
+@keyframes slide-in-from-bottom {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.slide-in-from-bottom {
+  animation-name: slide-in-from-bottom;
 }

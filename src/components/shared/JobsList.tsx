@@ -6,12 +6,13 @@ import { updateStatusAction, deleteApplicationAction } from '@/features/job-trac
 import {
     Briefcase, ExternalLink, Trash2, Target, Calendar, ChevronDown, FileText
 } from 'lucide-react'
+import Link from 'next/link'
 
 const STATUS_CONFIG: Record<ApplicationStatus, { label: string; classes: string }> = {
-    applied: { label: 'Applied', classes: 'bg-blue-50 text-blue-700 border-blue-200' },
-    interview: { label: 'Interview', classes: 'bg-amber-50 text-amber-700 border-amber-200' },
-    offer: { label: 'Offer 🎉', classes: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-    rejected: { label: 'Rejected', classes: 'bg-red-50 text-red-700 border-red-200' },
+    applied: { label: 'Applied', classes: 'bg-accent-blue/10 text-accent-blue border-accent-blue/20' },
+    interview: { label: 'Interview', classes: 'bg-warning/10 text-warning border-warning/20' },
+    offer: { label: 'Offer 🎉', classes: 'bg-success/10 text-success border-success/20' },
+    rejected: { label: 'Rejected', classes: 'bg-surface-hover text-text-muted border-border-subtle' },
 }
 
 const ALL_STATUSES: ApplicationStatus[] = ['applied', 'interview', 'offer', 'rejected']
@@ -45,43 +46,55 @@ function JobCard({ app, onDeleted, onStatusChanged }: JobCardProps) {
     const cfg = STATUS_CONFIG[app.status]
 
     return (
-        <div className={`bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col gap-4 transition-all ${isPending ? 'opacity-60' : ''}`}>
-            <div className="flex items-start justify-between gap-4">
+        <div className={`bg-bg-surface border border-border-default hover:border-accent/20 rounded-3xl p-6 flex flex-col gap-6 transition-all group relative ${isPending ? 'opacity-60' : ''}`}>
+            {/* Background Accent Gradient */}
+            <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-accent/10 transition-colors" />
+            </div>
+
+            <div className="flex items-start justify-between gap-4 relative z-10">
                 <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-lg font-bold text-gray-900 truncate">{app.company}</h3>
+                    <div className="flex items-center gap-3 flex-wrap mb-1">
+                        <h3 className="text-xl font-black text-text-main italic tracking-tight truncate">{app.company}</h3>
                         {app.job_url && (
                             <a href={app.job_url} target="_blank" rel="noopener noreferrer"
-                                className="text-gray-400 hover:text-blue-500 transition-colors flex-shrink-0">
-                                <ExternalLink className="w-4 h-4" />
+                                className="text-text-muted hover:text-text-main transition-colors">
+                                <ExternalLink size={16} />
                             </a>
                         )}
                     </div>
-                    <p className="text-gray-600 font-medium">{app.role}</p>
-                    <div className="flex items-center gap-2 mt-1 text-xs text-gray-400">
-                        <Calendar className="w-3 h-3" />
-                        <span>Applied {new Date(app.applied_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                        {app.expected_salary && <span>· {app.expected_salary}</span>}
+                    <p className="text-text-secondary font-bold text-sm tracking-wide uppercase">{app.role}</p>
+
+                    <div className="flex items-center gap-3 mt-3">
+                        <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-text-muted">
+                            <Calendar size={12} className="text-accent" />
+                            <span>{new Date(app.applied_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        </div>
+                        {app.expected_salary && (
+                            <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-text-muted">
+                                <span className="w-1 h-1 bg-border-subtle rounded-full" />
+                                <span>{app.expected_salary}</span>
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2 flex-shrink-0">
-                    {/* Status Badge with dropdown */}
+                <div className="flex items-center gap-3 flex-shrink-0">
                     <div className="relative">
                         <button
                             onClick={() => setShowStatusMenu(!showStatusMenu)}
-                            className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border ${cfg.classes} hover:opacity-80 transition-all`}
+                            className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all active:scale-95 ${cfg.classes}`}
                         >
                             {cfg.label}
-                            <ChevronDown className="w-3 h-3" />
+                            <ChevronDown size={12} />
                         </button>
                         {showStatusMenu && (
-                            <div className="absolute right-0 top-8 z-20 bg-white rounded-xl shadow-xl border border-gray-100 py-1 min-w-36">
+                            <div className="absolute right-0 top-full mt-2 z-50 bg-bg-surface border border-border-default rounded-2xl shadow-2xl py-2 min-w-[160px] animate-in fade-in zoom-in-95 duration-200">
                                 {ALL_STATUSES.map(s => (
                                     <button
                                         key={s}
                                         onClick={() => handleStatusChange(s)}
-                                        className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${s === app.status ? 'font-semibold' : ''}`}
+                                        className={`w-full text-left px-5 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-bg-surface-hover transition-colors cursor-pointer pointer-events-auto ${s === app.status ? 'text-accent bg-accent/5' : 'text-text-sub'}`}
                                     >
                                         {STATUS_CONFIG[s].label}
                                     </button>
@@ -92,45 +105,48 @@ function JobCard({ app, onDeleted, onStatusChanged }: JobCardProps) {
 
                     <button
                         onClick={handleDelete}
-                        className="p-2 text-gray-300 hover:text-red-500 transition-colors"
-                        title="Delete application"
+                        className="p-2 text-text-muted hover:text-danger hover:bg-danger/5 rounded-xl transition-all"
                     >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 size={16} />
                     </button>
                 </div>
             </div>
 
-            {/* Bottom row: ATS score + PDF link */}
-            <div className="flex items-center justify-between pt-3 border-t border-gray-50">
-                <div className="flex items-center gap-3">
+            {/* Meta Row: ATS & PDF */}
+            {(app.ats_score != null || app.pdf_url) && (
+                <div className="flex items-center justify-between pt-5 border-t border-border-default relative z-10">
                     {app.ats_score != null && (
-                        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${app.ats_score >= 80 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                                app.ats_score >= 60 ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                                    'bg-red-50 text-red-700 border-red-200'
+                        <div className={`flex items-center gap-2 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${app.ats_score >= 80 ? 'bg-success/10 text-success border-success/20' :
+                            app.ats_score >= 60 ? 'bg-warning/10 text-warning border-warning/20' :
+                                'bg-danger/10 text-danger border-danger/20'
                             }`}>
-                            <Target className="w-3 h-3" />
+                            <Target size={12} />
                             ATS {app.ats_score}%
                         </div>
                     )}
+
+                    {app.pdf_url ? (
+                        <a
+                            href={app.pdf_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-1.5 bg-bg-surface-hover text-accent rounded-xl text-[10px] font-black uppercase tracking-widest border border-border-default hover:border-text-main transition-all group/btn"
+                        >
+                            <FileText size={14} className="text-text-muted group-hover/btn:text-accent" />
+                            View CV
+                        </a>
+                    ) : (
+                        <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest italic opacity-50">No linked CV</span>
+                    )}
                 </div>
-                {app.pdf_url && (
-                    <a
-                        href={app.pdf_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-black transition-colors"
-                    >
-                        <FileText className="w-3.5 h-3.5" />
-                        View CV
-                    </a>
-                )}
-                {!app.ats_score && !app.pdf_url && (
-                    <span className="text-xs text-gray-300">No CV linked</span>
-                )}
-            </div>
+            )}
 
             {app.notes && (
-                <p className="text-sm text-gray-500 italic border-t border-gray-50 pt-3">{app.notes}</p>
+                <div className="bg-bg-primary/30 border border-border-default rounded-2xl p-4 relative z-10">
+                    <p className="text-xs text-text-sub font-medium leading-relaxed italic">
+                        "{app.notes}"
+                    </p>
+                </div>
             )}
         </div>
     )
@@ -153,20 +169,28 @@ export default function JobsList({ initialApplications }: JobsListProps) {
 
     if (applications.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-24 text-center">
-                <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mb-6">
-                    <Briefcase className="w-10 h-10 text-gray-300" />
+            <div className="bg-bg-surface border border-border-default border-dashed rounded-[40px] flex flex-col items-center justify-center py-32 text-center space-y-8">
+                <div className="w-24 h-24 bg-bg-surface-hover rounded-[32px] flex items-center justify-center text-text-muted border border-border-default">
+                    <Briefcase size={40} />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">No applications yet</h3>
-                <p className="text-gray-500 max-w-sm">
-                    Generate a CV and save it as an application to start tracking your job search.
-                </p>
+                <div className="space-y-3">
+                    <h3 className="text-2xl font-black text-text-main italic tracking-tight">Empty Pipeline</h3>
+                    <p className="text-text-sub font-medium max-w-sm mx-auto">
+                        Your career journey starts here. Build a tailored CV and save your first target application.
+                    </p>
+                </div>
+                <Link
+                    href="/cv-builder"
+                    className="px-8 py-3 bg-text-main text-bg-primary rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:opacity-90 transition-all shadow-xl"
+                >
+                    Start Tailoring
+                </Link>
             </div>
         )
     }
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             {applications.map(app => (
                 <JobCard
                     key={app.id}

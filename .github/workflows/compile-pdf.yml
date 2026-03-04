@@ -1,0 +1,85 @@
+name: Compile LaTeX PDF
+on:
+  workflow_dispatch:
+    inputs:
+      cv_id:
+        description: 'CV Generation ID'
+        required: true
+        type: string
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Install LaTeX
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y \
+            texlive-latex-base \
+            texlive-latex-extra \
+            texlive-fonts-recommended \
+            texlive-fonts-extra \
+            texlive-xetex \
+            cm-super \
+            fonts-font-awesome
+
+      - name: Fetch LaTeX source
+        run: |
+          RESPONSE=$(curl -s \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/cv_generations?id=eq.${{ inputs.cv_id }}&select=latex_source,user_id" \
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_KEY }}")
+          echo "$RESPONSE" > response.json
+          python3 -c "
+          import json
+          with open('response.json') as f:
+              data = json.load(f)
+          with open('document.tex', 'w') as f:
+              f.write(data[0]['latex_source'])
+          with open('user_id.txt', 'w') as f:
+              f.write(data[0]['user_id'])
+          "
+
+      - name: Set status to compiling
+        run: |
+          curl -s -X PATCH \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/cv_generations?id=eq.${{ inputs.cv_id }}" \
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"pdf_status":"compiling"}'
+
+      - name: Compile LaTeX
+        id: compile
+        run: |
+          pdflatex -interaction=nonstopmode document.tex
+          pdflatex -interaction=nonstopmode document.tex
+        continue-on-error: true
+
+      - name: Upload PDF
+        if: steps.compile.outcome == 'success'
+        run: |
+          USER_ID=$(cat user_id.txt)
+          STORAGE_PATH="${USER_ID}/${{ inputs.cv_id }}.pdf"
+          curl -s -X POST \
+            "${{ secrets.SUPABASE_URL }}/storage/v1/object/cvs/${STORAGE_PATH}" \
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_KEY }}" \
+            -H "Content-Type: application/pdf" \
+            --data-binary @document.pdf
+          curl -s -X PATCH \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/cv_generations?id=eq.${{ inputs.cv_id }}" \
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"pdf_status\":\"ready\",\"pdf_url\":\"${{ secrets.SUPABASE_URL }}/storage/v1/object/public/cvs/${STORAGE_PATH}\"}"
+
+      - name: Mark failed
+        if: steps.compile.outcome == 'failure'
+        run: |
+          curl -s -X PATCH \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/cv_generations?id=eq.${{ inputs.cv_id }}" \
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"pdf_status":"failed","pdf_error":"LaTeX compilation failed"}'

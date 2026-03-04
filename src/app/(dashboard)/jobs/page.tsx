@@ -19,50 +19,52 @@ export default async function JobsPage() {
     ])
 
     const statCards = [
-        { label: 'Total Applied', value: stats.total, icon: Briefcase, color: 'bg-blue-50 text-blue-600' },
-        { label: 'Interviews', value: stats.interview, icon: TrendingUp, color: 'bg-amber-50 text-amber-600' },
-        { label: 'Offers', value: stats.offer, icon: Award, color: 'bg-emerald-50 text-emerald-600' },
-        { label: 'Rejected', value: stats.rejected, icon: XCircle, color: 'bg-red-50 text-red-600' },
+        { label: 'Total Scoped', value: stats.total, icon: Briefcase, color: 'text-accent', bg: 'bg-accent/10' },
+        { label: 'Interviews', value: stats.interview, icon: TrendingUp, color: 'text-warning', bg: 'bg-warning/10' },
+        { label: 'Offers', value: stats.offer, icon: Award, color: 'text-success', bg: 'bg-success/10' },
+        { label: 'Not Pursuing', value: stats.rejected, icon: XCircle, color: 'text-text-muted', bg: 'bg-bg-surface-hover' },
     ]
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="space-y-10 animate-in fade-in duration-500 max-w-[1400px] mx-auto">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
-                        <Briefcase className="w-8 h-8" />
-                        Job Applications
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="space-y-2">
+                    <h1 className="text-4xl font-black tracking-tight text-text-main italic flex items-center gap-3">
+                        <Briefcase className="text-accent" />
+                        Job Tracker
                     </h1>
-                    <p className="text-gray-500 mt-1">Track every application and its current status.</p>
+                    <p className="text-text-secondary font-medium">
+                        Monitor your application pipeline and manage status transitions with AI insights.
+                    </p>
                 </div>
                 <Link
                     href="/cv-builder"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-black text-white rounded-xl font-semibold hover:bg-gray-800 transition-all shadow-sm"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-text-main text-bg-primary rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:opacity-90 transition-all hover:scale-[1.02] active:scale-100 shadow-xl"
                 >
-                    <Plus className="w-4 h-4" />
-                    Generate & Save CV
+                    <Plus size={16} />
+                    New Application
                 </Link>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                 {statCards.map(s => (
-                    <div key={s.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                        <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-xl ${s.color}`}>
-                                <s.icon className="w-5 h-5" />
+                    <div key={s.label} className="bg-bg-surface border border-border-default rounded-3xl p-6 group hover:border-accent/30 transition-all">
+                        <div className="flex items-center gap-4">
+                            <div className={`p-3 rounded-2xl ${s.bg} ${s.color} transition-transform group-hover:scale-110`}>
+                                <s.icon size={24} />
                             </div>
                             <div>
-                                <p className="text-xs font-medium text-gray-500">{s.label}</p>
-                                <p className="text-2xl font-bold text-gray-900">{s.value}</p>
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-0.5">{s.label}</p>
+                                <p className="text-3xl font-black text-text-main italic leading-none">{s.value}</p>
                             </div>
                         </div>
                     </div>
                 ))}
             </div>
 
-            {/* Applications list (client component for inline interactions) */}
+            {/* Applications list */}
             <JobsList initialApplications={applications} />
         </div>
     )
