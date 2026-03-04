@@ -8,6 +8,10 @@ import {
     Github,
     FileText,
     BarChart3,
+    TrendingUp,
+    Briefcase,
+    Mail,
+    Settings,
     LogOut,
     Menu,
     X
@@ -20,6 +24,10 @@ const navigation = [
     { name: 'GitHub Repos', href: '/github', icon: Github },
     { name: 'CV Builder', href: '/cv-builder', icon: FileText },
     { name: 'CV History', href: '/cv-history', icon: BarChart3 },
+    { name: 'Job Tracker', href: '/jobs', icon: Briefcase },
+    { name: 'Email Intel', href: '/emails', icon: Mail },
+    { name: 'Analytics', href: '/analytics', icon: TrendingUp },
+    { name: 'Settings', href: '/settings', icon: Settings },
 ]
 
 export default function DashboardSidebar() {

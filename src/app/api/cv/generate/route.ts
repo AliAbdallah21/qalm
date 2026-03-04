@@ -2,12 +2,29 @@ import { generateCVAction } from '@/features/cv-generator/actions'
 import { generateLatexCVPdf } from '@/features/cv-generator/latex-template'
 import { createServerClient } from '@/lib/supabase/server'
 import { updateCV } from '@/features/cv-generator/queries'
-import { callAI } from '@/lib/ai/client'
+import { callAI, parseAIJSON } from '@/lib/ai/client'
 import { buildAtsBreakdownPrompt } from '@/lib/ai/prompts'
 import type { ATSBreakdown } from '@/features/cv-generator/types'
+import { canUserAccess } from '@/lib/access/permissions'
 
 export async function POST(request: Request) {
     try {
+        const supabase = await createServerClient()
+        const { data: { user } } = await supabase.auth.getUser()
+
+        if (!user) {
+            return Response.json({ error: 'Unauthorized', code: 'UNAUTHORIZED' }, { status: 401 })
+        }
+
+        // Check subscription & limits
+        const access = await canUserAccess(user.id, 'cv_generation')
+        if (!access.allowed) {
+            return Response.json({
+                error: access.reason || 'Upgrade to Pro for unlimited generations',
+                code: 'LIMIT_REACHED'
+            }, { status: 403 })
+        }
+
         const body = await request.json()
         const { job_description, job_title, company_name } = body
         console.log('JOB TITLE RECEIVED:', job_title)
@@ -28,13 +45,6 @@ export async function POST(request: Request) {
 
         const { cv_id, generated_cv } = result.data
         generated_cv.header.title = job_title // Force exact user input
-
-        const supabase = await createServerClient()
-        const { data: { user } } = await supabase.auth.getUser()
-
-        if (!user) {
-            return Response.json({ error: 'Unauthorized', code: 'UNAUTHORIZED' }, { status: 401 })
-        }
 
         // 1. Generate PDF Buffer using LaTeX
         let pdfBuffer: Buffer;
@@ -75,7 +85,7 @@ export async function POST(request: Request) {
                 prompt,
                 model: 'fast'
             })
-            atsBreakdown = JSON.parse(aiResponse)
+            atsBreakdown = parseAIJSON<ATSBreakdown>(aiResponse)
         } catch (atsError) {
             console.error('ATS Breakdown generation failed:', atsError)
         }

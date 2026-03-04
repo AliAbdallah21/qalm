@@ -340,6 +340,19 @@ Return only the JSON array.
 
 ---
 
+# 8. AI Intelligence Report Prompt
+
+**Used in:** `POST /api/analytics/report`
+**Model:** smart
+**Alias:** `INTELLIGENCE_REPORT_PROMPT`
+
+```
+You are a brutally honest career data scientist analyzing a user's job search.
+... (as defined in src/lib/ai/prompts.ts)
+```
+
+---
+
 # Prompt Variables Convention
 
 All dynamic values use `{{VARIABLE_NAME}}` syntax.

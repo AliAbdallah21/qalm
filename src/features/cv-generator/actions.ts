@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createServerClient } from '@/lib/supabase/server'
 import { getFullProfile } from '@/features/profile/queries'
 import { getStoredRepos } from '@/features/github/queries'
-import { callAI } from '@/lib/ai/client'
+import { callAI, parseAIJSON } from '@/lib/ai/client'
 import { buildCVGenerationPrompt } from '@/lib/ai/prompts'
 import { saveGeneratedCV } from './queries'
 import type { StructuredCV } from './types'
@@ -69,10 +69,7 @@ export async function generateCVAction(data: {
         // 4. Parse the JSON safely
         let structuredCV: StructuredCV
         try {
-            // Find the first { and last } to extract JSON if AI included markdown filler
-            const jsonMatch = aiResponse.match(/\{[\s\S]*\}/)
-            const jsonString = jsonMatch ? jsonMatch[0] : aiResponse
-            structuredCV = JSON.parse(jsonString)
+            structuredCV = parseAIJSON<StructuredCV>(aiResponse)
         } catch (parseError) {
             console.error('Failed to parse AI CV response:', aiResponse)
             return { error: 'AI generated an invalid format. Please try again.', code: 'GENERATION_FAILED' }

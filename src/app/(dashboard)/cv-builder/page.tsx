@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { FileText, Download, Sparkles, Loader2, Target, AlertCircle, Briefcase, ArrowRight, CheckCircle, X, Copy, Mail, ChevronDown, ChevronUp, Check, Lightbulb } from 'lucide-react'
+import { FileText, Download, Sparkles, Loader2, Target, AlertCircle, Briefcase, ArrowRight, CheckCircle, X, Copy, Mail, ChevronDown, ChevronUp, Check, Lightbulb, Zap } from 'lucide-react'
 import Link from 'next/link'
 
 interface GeneratedResult {
@@ -54,6 +54,25 @@ export default function CvBuilderPage() {
     // ATS Breakdown state
     const [showAtsBreakdown, setShowAtsBreakdown] = useState(false)
 
+    // User Limits
+    const [limits, setLimits] = useState<any>(null)
+
+    const fetchLimits = async () => {
+        try {
+            const res = await fetch('/api/user/limits')
+            if (res.ok) {
+                const { data } = await res.json()
+                setLimits(data)
+            }
+        } catch (e) {
+            console.error('Failed to fetch limits', e)
+        }
+    }
+
+    useState(() => {
+        fetchLimits()
+    })
+
     const handleGenerate = async () => {
         if (!jobDescription || !jobTitle || !companyName) {
             setError('Please provide Job Title, Company Name, and Job Description')
@@ -79,7 +98,12 @@ export default function CvBuilderPage() {
             const json = await response.json()
 
             if (!response.ok) {
-                throw new Error(json.error || 'Failed to generate CV')
+                if (response.status === 403 || json.code === 'LIMIT_REACHED') {
+                    setError(json.error || 'Monthly limit reached. Upgrade to Pro for unlimited generations.')
+                } else {
+                    throw new Error(json.error || 'Failed to generate CV')
+                }
+                return
             }
 
             setResult({
@@ -88,6 +112,9 @@ export default function CvBuilderPage() {
                 cv_id: json.data.cv_id,
                 ats_breakdown: json.data.ats_breakdown,
             })
+
+            // Refresh limits after generation
+            fetchLimits()
 
             // Pre-fill the save form
             setSaveForm(prev => ({
@@ -187,6 +214,25 @@ export default function CvBuilderPage() {
                     Paste the job description below, and Qalm will tailor your experience and GitHub projects to match perfectly.
                 </p>
             </div>
+
+            {limits && limits.tier === 'free' && (
+                <div className="flex items-center justify-between p-4 bg-indigo-50 border border-indigo-100 rounded-2xl">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                            <Zap className="text-indigo-600 w-5 h-5" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold text-indigo-900">
+                                {limits.usage.cv_generations_this_month} of {limits.features.cv_generations_per_month} free generations used
+                            </p>
+                            <p className="text-xs text-indigo-600">Upgrade to Pro for unlimited tailored CVs</p>
+                        </div>
+                    </div>
+                    <Link href="/settings" className="px-4 py-2 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 transition-colors">
+                        Upgrade
+                    </Link>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="col-span-full space-y-2">

@@ -12,9 +12,13 @@ import {
   FileText,
   Github,
   UserCheck,
-  Briefcase
+  Briefcase,
+  Mail,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react'
 import type { ApplicationStatus } from '@/features/job-tracker/types'
+import { getGmailTokens } from '@/features/email-intel/queries'
 
 
 export default async function DashboardPage() {
@@ -26,12 +30,13 @@ export default async function DashboardPage() {
   }
 
   // Fetch all dashboard data
-  const [profileData, githubRepos, cvHistory, recentApplications, appStats] = await Promise.all([
+  const [profileData, githubRepos, cvHistory, recentApplications, appStats, gmailTokens] = await Promise.all([
     getFullProfile(user.id),
     getStoredRepos(user.id),
     getCVHistory(user.id),
     getApplicationsByUserId(user.id),
     getApplicationStats(user.id),
+    getGmailTokens(user.id),
   ])
 
   const STATUS_COLORS: Record<ApplicationStatus, string> = {
@@ -77,6 +82,13 @@ export default async function DashboardPage() {
       color: 'bg-violet-50 text-violet-600',
       href: '/jobs'
     },
+    {
+      name: 'Gmail Sync',
+      value: gmailTokens ? 'Active' : 'Missing',
+      icon: Mail,
+      color: gmailTokens ? 'bg-green-50 text-green-600' : 'bg-amber-50 text-amber-600',
+      href: '/emails'
+    },
   ]
 
   return (
@@ -111,7 +123,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
         {stats.map((stat) => (
           <Link
             key={stat.name}

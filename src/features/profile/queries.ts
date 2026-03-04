@@ -1,5 +1,6 @@
 import { createServerClient } from '@/lib/supabase/server'
 import type { Profile, Experience, Education, Skill, Certificate, Language, FullProfileData } from './types'
+import { SupabaseClient } from '@supabase/supabase-js'
 
 export async function getFullProfile(userId: string): Promise<FullProfileData> {
     const supabase = await createServerClient()
@@ -264,4 +265,15 @@ export async function deleteLanguage(userId: string, id: string): Promise<void> 
         .eq('user_id', userId)
 
     if (error) throw error
+}
+export async function getProfileByEmail(email: string, client?: SupabaseClient): Promise<Profile | null> {
+    const supabase = client || await createServerClient()
+    const { data, error } = await supabase
+        .from('profiles')
+        .select('id, user_id, full_name, email, phone, country, city, age, headline, summary, linkedin_url, github_username, avatar_url, created_at, updated_at')
+        .eq('email', email)
+        .maybeSingle()
+
+    if (error) return null
+    return data as Profile
 }

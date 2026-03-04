@@ -53,3 +53,26 @@ export async function callAI({ prompt, model }: AIRequestParams): Promise<string
 
     return content;
 }
+
+/**
+ * Strips markdown backticks and other common artifacts from AI JSON responses
+ */
+export function cleanAIJSON(response: string): string {
+    return response
+        .replace(/```json/g, '')
+        .replace(/```/g, '')
+        .trim()
+}
+
+/**
+ * Safely parses AI-generated JSON by cleaning it first
+ */
+export function parseAIJSON<T>(response: string): T {
+    try {
+        const cleaned = cleanAIJSON(response)
+        return JSON.parse(cleaned) as T
+    } catch (error: any) {
+        console.error('Failed to parse AI JSON:', response)
+        throw new Error(`AI generated invalid format: ${error.message}`)
+    }
+}

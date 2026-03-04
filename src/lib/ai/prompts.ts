@@ -223,45 +223,6 @@ Rules:
 CSV DATA:
 {{LINKEDIN_CSV_DATA}}`
 
-export const EMAIL_CLASSIFICATION_PROMPT = `You are an email classifier for job applications.
-
-Classify the following email and return a JSON object:
-{
-  "is_job_related": boolean,
-  "classification": string | null,
-  "company_name": string | null,
-  "role_name": string | null,
-  "next_action": string | null,
-  "sentiment": string | null,
-  "confidence": number
-}
-
-Classification options:
-- "interview_invite"
-- "rejection"
-- "offer"
-- "follow_up_needed"
-- "assessment"
-- "background_check"
-- "offer_negotiation"
-- "acknowledgement"
-
-next_action examples:
-- "Reply to schedule interview"
-- "Send thank you email"
-- "Complete technical assessment by [date]"
-- "No action needed"
-- "Follow up if no response in 3 days"
-
-sentiment: "positive" | "negative" | "neutral"
-confidence: 0-1 float
-
-EMAIL SUBJECT: {{EMAIL_SUBJECT}}
-EMAIL BODY: {{EMAIL_BODY}}
-EMAIL FROM: {{EMAIL_FROM}}
-
-Return only the JSON object.`
-
 export const COVER_LETTER_PROMPT = `You are an expert cover letter writer specializing in tech and AI/ML roles.
 
 Write a compelling, personalized cover letter for the job below.
@@ -309,6 +270,105 @@ PROFILE DATA:
 
 Return only the JSON array.`
 
+export const EMAIL_CLASSIFICATION_PROMPT = `You are an expert recruitment assistant.
+Analyze the provided email content and classify it based on its impact on a job application.
+
+Return ONLY a valid JSON object with this exact structure:
+{
+  "classification": "interview_invite" | "rejection" | "offer" | "assessment" | "follow_up" | "auto_reply" | "unknown",
+  "confidence": number,
+  "reasoning": string
+}
+
+Guidelines for classification:
+- interview_invite: The recruiter wants to schedule a call, meeting, or interview.
+- rejection: The candidate was not selected for the role.
+- offer: The company is extending a job offer.
+- assessment: The user is asked to complete a test, coding challenge, or assessment.
+- follow_up: General communication or a request for more information (e.g., "Are you still interested?").
+- auto_reply: Automated "Received application" or "Out of office" messages.
+- unknown: None of the above.
+
+Confidence should be a float between 0.0 and 1.0.
+
+EMAIL SUBJECT: {{EMAIL_SUBJECT}}
+EMAIL BODY: {{EMAIL_BODY}}
+COMPANY NAME: {{COMPANY_NAME}}`
+
+export const INTELLIGENCE_REPORT_PROMPT = `You are a brutally honest career data scientist analyzing a user's job search.
+Your task is to provide a deep, data-driven intelligence report based on their application history, CV quality, and market interactions.
+
+Rules:
+- Be brutally honest, not encouraging. If the data shows failure, say so.
+- Base everything on the actual data provided.
+- If data is insufficient for a clear trend, say so in health_summary.
+- Never hallucinate companies, roles, or skills not present in the data.
+- health_score (0-100) calculation:
+  - 40% Response Rate (interviews/total)
+  - 30% Average ATS Score
+  - 30% Application Volume (at least 5 per week for max score)
+
+Return ONLY a valid JSON object with this exact structure:
+{
+  "health_score": number,
+  "overall_health": "great" | "good" | "concerning" | "critical",
+  "health_summary": string,
+  "key_insights": [
+    {
+      "insight": string,
+      "type": "positive" | "negative"
+    }
+  ],
+  "whats_working": string[],
+  "whats_not_working": string[],
+  "skill_recommendations": [
+    {
+      "skill": string,
+      "impact": "high" | "medium" | "low",
+      "reasoning": string,
+      "estimated_learn_time": string
+    }
+  ],
+  "action_plan": [
+    {
+      "timeframe": string,
+      "action": string
+    }
+  ],
+  "follow_ups_needed": [
+    {
+      "company": string,
+      "role": string,
+      "days_since_apply": number,
+      "suggested_action": string
+    }
+  ],
+  "industry_performance": [
+    {
+      "industry": string,
+      "applications": number,
+      "responses": number,
+      "response_rate": number
+    }
+  ]
+}
+
+JOB SEARCH SNAPSHOT:
+{{SNAPSHOT_JSON}}
+
+Return ONLY the JSON object. No markdown, no explanation.`
+
+export function buildIntelligenceReportPrompt(snapshot: unknown): string {
+  return INTELLIGENCE_REPORT_PROMPT.replace('{{SNAPSHOT_JSON}}', JSON.stringify(snapshot, null, 2))
+}
+
+export function buildEmailClassificationPrompt(emailSubject: string, emailBody: string, companyName: string): string {
+  return EMAIL_CLASSIFICATION_PROMPT
+    .replace('{{EMAIL_SUBJECT}}', emailSubject)
+    .replace('{{EMAIL_BODY}}', emailBody)
+    .replace('{{COMPANY_NAME}}', companyName)
+}
+
 export function buildCVGenerationPrompt(profile: unknown, jobDescription: string, jobTitle: string): string {
   return CV_GENERATION_PROMPT
     .replace('{{PROFILE_JSON}}', JSON.stringify(profile, null, 2))
@@ -330,13 +390,6 @@ export function buildAtsScorePrompt(jobDescription: string, cvContent: string): 
 export function buildLinkedinParserPrompt(linkedinCsvData: string): string {
   return LINKEDIN_PARSER_PROMPT
     .replace('{{LINKEDIN_CSV_DATA}}', linkedinCsvData)
-}
-
-export function buildEmailClassificationPrompt(emailSubject: string, emailBody: string, emailFrom: string): string {
-  return EMAIL_CLASSIFICATION_PROMPT
-    .replace('{{EMAIL_SUBJECT}}', emailSubject)
-    .replace('{{EMAIL_BODY}}', emailBody)
-    .replace('{{EMAIL_FROM}}', emailFrom)
 }
 
 export function buildCoverLetterPrompt(profileSummary: string, jobDescription: string, companyName: string, jobTitle: string): string {
