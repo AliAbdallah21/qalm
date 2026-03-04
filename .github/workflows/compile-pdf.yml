@@ -25,12 +25,12 @@ jobs:
 
       - name: Fetch LaTeX source
         run: |
-          RESPONSE=$(curl -s \
+          curl -s \
             "${{ secrets.SUPABASE_URL }}/rest/v1/cv_generations?id=eq.${{ inputs.cv_id }}&select=latex_source,user_id" \
             -H "apikey: ${{ secrets.SUPABASE_SERVICE_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_KEY }}")
-          echo "$RESPONSE" > response.json
-          python3 -c "
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_KEY }}" \
+            -o response.json
+          python3 << 'PYEOF'
           import json
           with open('response.json') as f:
               data = json.load(f)
@@ -38,7 +38,9 @@ jobs:
               f.write(data[0]['latex_source'])
           with open('user_id.txt', 'w') as f:
               f.write(data[0]['user_id'])
-          "
+          print('Fetched successfully')
+          print(f'LaTeX length: {len(data[0]["latex_source"])}')
+          PYEOF
 
       - name: Set status to compiling
         run: |
