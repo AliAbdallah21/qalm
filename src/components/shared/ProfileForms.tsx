@@ -772,7 +772,7 @@ function SkillsSection({ skills, onUpdate, loading, setLoading, showNotification
 }
 
 function LanguagesSection({ languages, onUpdate, loading, setLoading, showNotification }: { languages: Language[] } & SectionProps) {
-    const [tempData, setTempData] = useState<Partial<Language>>({ proficiency: 'Full Professional' })
+    const [tempData, setTempData] = useState<Partial<Language>>({ proficiency: 'fluent' })
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -787,7 +787,7 @@ function LanguagesSection({ languages, onUpdate, loading, setLoading, showNotifi
             const result = await res.json()
             if (result.error) throw new Error(result.error)
             onUpdate([result.data, ...languages])
-            setTempData({ proficiency: 'Full Professional' })
+            setTempData({ proficiency: 'fluent' })
             showNotification('Language added!', 'success')
         } catch (err: any) {
             showNotification(err.message || 'Failed to add language', 'error')
@@ -851,10 +851,10 @@ function LanguagesSection({ languages, onUpdate, loading, setLoading, showNotifi
                             onChange={e => setTempData({ ...tempData, proficiency: e.target.value })}
                             className="w-full px-5 py-3 bg-surface-main border border-border-subtle rounded-2xl outline-none text-sm text-[var(--text-primary)] font-medium cursor-pointer [color-scheme:dark]"
                         >
-                            <option value="Elementary">Elementary</option>
-                            <option value="Limited Working">Limited Working</option>
-                            <option value="Full Professional">Full Professional</option>
-                            <option value="Native or Bilingual">Native or Bilingual</option>
+                            <option value="native">Native</option>
+                            <option value="fluent">Fluent</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="basic">Basic</option>
                         </select>
                     </div>
                     <button
