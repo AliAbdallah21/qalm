@@ -30,6 +30,9 @@ jobs:
             -H "apikey: ${{ secrets.SUPABASE_SERVICE_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_KEY }}" \
             -o response.json
+          echo "=== Response content ==="
+          cat response.json
+          echo "=== End response ==="
           python3 << 'PYEOF'
           import json
           with open('response.json') as f:
