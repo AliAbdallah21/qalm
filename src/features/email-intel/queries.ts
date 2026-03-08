@@ -14,7 +14,7 @@ export async function saveGmailTokens(userId: string, tokens: GmailTokens) {
             token_expiry: new Date(tokens.expires_at).toISOString(),
             email: tokens.email,
             updated_at: new Date().toISOString()
-        })
+        }, { onConflict: 'user_id' })
 
     if (error) throw error
 }
