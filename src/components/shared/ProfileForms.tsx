@@ -924,6 +924,12 @@ function CertificatesSection({ certificates, onUpdate, loading, setLoading, show
                                 <div className="text-[10px] font-black text-accent-blue uppercase tracking-widest bg-accent-blue/5 px-3 py-1 rounded-lg border border-accent-blue/10 inline-block mt-2">
                                     Issued: {cert.issue_date}
                                 </div>
+                                {cert.credential_url && (
+                                    <a href={cert.credential_url} target="_blank" rel="noreferrer"
+                                        className="text-[10px] font-black text-accent-blue uppercase tracking-widest hover:underline flex items-center gap-1 mt-1">
+                                        View Credential →
+                                    </a>
+                                )}
                             </div>
                             <button
                                 onClick={() => handleDelete(cert.id)}
@@ -969,7 +975,17 @@ function CertificatesSection({ certificates, onUpdate, loading, setLoading, show
                                 className="w-full px-4 py-3 bg-surface-main border border-border-subtle rounded-2xl outline-none text-sm text-[var(--text-primary)] font-medium [color-scheme:dark]"
                             />
                         </div>
-                        <div className="flex items-end">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Credential URL</label>
+                            <input
+                                type="url"
+                                value={tempData.credential_url || ''}
+                                onChange={e => setTempData({ ...tempData, credential_url: e.target.value })}
+                                className="w-full px-5 py-3 bg-surface-main border border-border-subtle rounded-2xl outline-none text-sm text-[var(--text-primary)] font-medium shadow-inner"
+                                placeholder="https://www.credly.com/badges/..."
+                            />
+                        </div>
+                        <div className="flex items-end col-span-full">
                             <button
                                 type="submit"
                                 disabled={loading || !tempData.title}
