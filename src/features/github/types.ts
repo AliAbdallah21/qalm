@@ -11,6 +11,7 @@ export interface GithubRepo {
     forks: number
     is_private: boolean
     is_featured: boolean
+    is_hero: boolean
     readme_summary: string | null
     html_url: string | null
     created_at: string

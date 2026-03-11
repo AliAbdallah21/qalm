@@ -132,7 +132,7 @@
 **Goal:** Deeper profile data, track every application, richer CV output.
 
 **Started:** March 3, 2026
-**Completed:** March 3, 2026
+**Completed:** March 12, 2026
 
 ---
 
@@ -177,6 +177,22 @@
 * [x] Missing keywords shown in red
 * [x] Improvement suggestions
 * [x] Visual breakdown on cv-builder page after generation
+
+---
+
+## Step 5 — Projects & Hero Flags ✅ COMPLETE
+
+* [x] Create `projects` table with RLS (010_add_projects_and_hero_flags.sql)
+* [x] Add `is_hero` column to `certificates` and `github_repos`
+* [x] features/projects/ folder with types, queries, actions
+* [x] GET/POST/PATCH/DELETE /api/profile/projects
+* [x] PATCH /api/profile/projects/[id]/hero — toggle status with limit check (max 4)
+* [x] /dashboard/profile/page.tsx — Projects section with "Promote from GitHub"
+* [x] CV Builder: Featured Projects & Certifications selection UI
+* [x] CV Builder: Optional custom descriptions for forced projects
+* [x] CV Builder: Toggles for "Let AI pick additional" projects/certs
+* [x] API Update: /api/cv/generate accepts forced IDs and descriptions
+* [x] Prompt Update: buildCVGenerationPrompt incorporates forced/hero context
 
 ---
 

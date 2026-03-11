@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createServerClient } from '@/lib/supabase/server'
+import { createProject } from '@/features/projects/queries'
 import { parseLinkedInZip, parseLinkedInDate } from './parser'
 import type { LinkedInImportPreview } from './types'
 
@@ -197,38 +198,35 @@ export async function confirmImportAction(preview: LinkedInImportPreview): Promi
             }
         }
 
-        // ── 6. Projects → stored as experiences with company='Personal Project'
+        // ── 6. Projects ───────────────────────────────────────────────────
         if (preview.projects.length > 0) {
-            const { data: existingExp } = await supabase
-                .from('experiences')
-                .select('company, title')
+            const { data: existingProj } = await supabase
+                .from('projects')
+                .select('name')
                 .eq('user_id', userId)
 
             const existingSet = new Set(
-                (existingExp ?? []).map(e => `${e.company}|${e.title}`.toLowerCase())
+                (existingProj ?? []).map(p => p.name.toLowerCase())
             )
 
             const toInsert = preview.projects
-                .filter(p => !existingSet.has(`personal project|${p.title}`.toLowerCase()))
-                .map(p => ({
+                .filter(p => !existingSet.has(p.title.toLowerCase()))
+
+            for (const p of toInsert) {
+                await createProject(userId, {
                     user_id: userId,
-                    company: 'Personal Project',
-                    title: p.title,
+                    name: p.title,
                     description: p.description || null,
-                    location: null,
+                    technologies: [],
+                    url: p.url || null,
+                    github_repo_id: null,
+                    is_hero: false,
                     start_date: parseLinkedInDate(p.startedOn),
                     end_date: parseLinkedInDate(p.finishedOn),
-                    is_current: !p.finishedOn,
-                }))
-
-            if (toInsert.length > 0) {
-                const { data: inserted } = await supabase
-                    .from('experiences')
-                    .insert(toInsert)
-                    .select('id')
-                imported.projects = inserted?.length ?? 0
-                imported.experiences += imported.projects
+                })
             }
+            
+            imported.projects = toInsert.length
         }
 
         revalidatePath('/profile')

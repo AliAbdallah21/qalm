@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { FileText, Download, Sparkles, Loader2, Target, AlertCircle, Briefcase, ArrowRight, CheckCircle, X, Copy, Mail, ChevronDown, ChevronUp, Check, Lightbulb, Zap } from 'lucide-react'
+import { FileText, Download, Sparkles, Loader2, Target, AlertCircle, Briefcase, ArrowRight, CheckCircle, X, Copy, Mail, ChevronDown, ChevronUp, Check, Lightbulb, Zap, Star } from 'lucide-react'
 import Link from 'next/link'
+import type { Project } from '@/features/projects/types'
+import type { Certificate } from '@/features/profile/types'
 
 interface GeneratedResult {
     pdf_url: string
@@ -41,22 +43,45 @@ export default function CvBuilderPage() {
     const [templateId, setTemplateId] = useState<string>('experienced')
     const [category, setCategory] = useState<string>('AI/ML')
 
-    const fetchProfile = async () => {
+    // Projects and Certs Data
+    const [allProjects, setAllProjects] = useState<Project[]>([])
+    const [allCerts, setAllCerts] = useState<Certificate[]>([])
+
+    // Generation Options state
+    const [allowAiProjects, setAllowAiProjects] = useState(true)
+    const [allowAiCerts, setAllowAiCerts] = useState(true)
+    const [forcedProjectIds, setForcedProjectIds] = useState<string[]>([])
+    const [forcedProjectDescriptions, setForcedProjectDescriptions] = useState<Record<string, string>>({})
+    const [forcedCertIds, setForcedCertIds] = useState<string[]>([])
+
+    const fetchProfileData = async () => {
         try {
-            const res = await fetch('/api/profile')
-            if (res.ok) {
-                const { data } = await res.json()
+            const [profileRes, projectRes] = await Promise.all([
+                fetch('/api/profile'),
+                fetch('/api/profile/projects')
+            ])
+
+            if (profileRes.ok) {
+                const { data } = await profileRes.json()
                 if (data?.profile?.preferred_template) {
                     setTemplateId(data.profile.preferred_template)
                 }
+                if (data?.certificates) {
+                    setAllCerts(data.certificates)
+                }
+            }
+
+            if (projectRes.ok) {
+                const { data } = await projectRes.json()
+                setAllProjects(data)
             }
         } catch (e) {
-            console.error('Failed to fetch profile:', e)
+            console.error('Failed to fetch profile data:', e)
         }
     }
 
     useEffect(() => {
-        fetchProfile()
+        fetchProfileData()
     }, [])
 
     useEffect(() => {
@@ -177,7 +202,12 @@ export default function CvBuilderPage() {
                     job_title: jobTitle,
                     company_name: companyName,
                     template_id: templateId,
-                    category: category
+                    category: category,
+                    forcedProjectIds,
+                    forcedProjectDescriptions,
+                    allowAiProjects,
+                    forcedCertIds,
+                    allowAiCerts
                 }),
             })
 
@@ -386,7 +416,7 @@ export default function CvBuilderPage() {
                                     ))}
                                 </div>
                             </div>
-                        <div className="space-y-4">
+                        <div className="space-y-6">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted px-1">Category</label>
                                 <div className="relative">
@@ -401,6 +431,126 @@ export default function CvBuilderPage() {
                                         ))}
                                     </select>
                                     <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
+                                </div>
+                            </div>
+
+                            {/* Featured Projects Section */}
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between px-1">
+                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted">Featured Projects</label>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[10px] font-bold text-text-muted uppercase">Let AI pick extras</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => setAllowAiProjects(!allowAiProjects)}
+                                            className={`w-8 h-4 rounded-full transition-all relative ${allowAiProjects ? 'bg-accent-blue' : 'bg-border-subtle'}`}
+                                        >
+                                            <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${allowAiProjects ? 'right-0.5' : 'left-0.5'}`} />
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                                    {[...allProjects].sort((a, b) => (b.is_hero ? 1 : 0) - (a.is_hero ? 1 : 0)).map(project => (
+                                        <div key={project.id} className="space-y-2">
+                                            <div 
+                                                className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center gap-3 ${
+                                                    forcedProjectIds.includes(project.id)
+                                                        ? 'border-accent-blue bg-accent-blue/5' 
+                                                        : 'border-border-subtle bg-surface-hover hover:border-border-hover'
+                                                }`}
+                                                onClick={() => {
+                                                    if (forcedProjectIds.includes(project.id)) {
+                                                        setForcedProjectIds(forcedProjectIds.filter(id => id !== project.id))
+                                                    } else {
+                                                        setForcedProjectIds([...forcedProjectIds, project.id])
+                                                    }
+                                                }}
+                                            >
+                                                <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${
+                                                    forcedProjectIds.includes(project.id) ? 'bg-accent-blue border-accent-blue' : 'border-text-muted'
+                                                }`}>
+                                                    {forcedProjectIds.includes(project.id) && <Check size={10} className="text-white" />}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xs font-bold text-[var(--text-primary)] truncate">{project.name}</span>
+                                                        {project.is_hero && (
+                                                            <span className="flex items-center gap-0.5 px-1.5 py-0.5 bg-yellow-500/10 text-yellow-500 rounded text-[8px] font-black uppercase tracking-tighter">
+                                                                <Star size={8} fill="currentColor" /> Hero
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-[10px] text-text-muted truncate">{project.technologies.join(', ')}</p>
+                                                </div>
+                                            </div>
+                                            {forcedProjectIds.includes(project.id) && (
+                                                <div className="pl-7 pb-2 animate-in slide-in-from-top-1 duration-200">
+                                                    <textarea
+                                                        placeholder="Custom description (leave blank for AI to write)"
+                                                        value={forcedProjectDescriptions[project.id] || ''}
+                                                        onChange={(e) => setForcedProjectDescriptions({...forcedProjectDescriptions, [project.id]: e.target.value})}
+                                                        className="w-full bg-surface-main border border-border-subtle rounded-lg px-3 py-2 text-[10px] font-medium text-[var(--text-primary)] placeholder:text-text-muted focus:border-accent-blue focus:ring-1 focus:ring-accent-blue outline-none transition-all h-16 resize-none"
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                    {allProjects.length === 0 && (
+                                        <p className="text-[10px] text-text-muted text-center py-4 bg-surface-hover rounded-xl border border-dashed border-border-subtle italic">
+                                            No projects found. Add them in your profile.
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Featured Certifications Section */}
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between px-1">
+                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted">Featured Certifications</label>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[10px] font-bold text-text-muted uppercase">Let AI pick extras</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => setAllowAiCerts(!allowAiCerts)}
+                                            className={`w-8 h-4 rounded-full transition-all relative ${allowAiCerts ? 'bg-accent-blue' : 'bg-border-subtle'}`}
+                                        >
+                                            <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${allowAiCerts ? 'right-0.5' : 'left-0.5'}`} />
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+                                    {[...allCerts].map(cert => (
+                                        <div 
+                                            key={cert.id}
+                                            className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center gap-3 ${
+                                                forcedCertIds.includes(cert.id)
+                                                    ? 'border-accent-blue bg-accent-blue/5' 
+                                                    : 'border-border-subtle bg-surface-hover hover:border-border-hover'
+                                            }`}
+                                            onClick={() => {
+                                                if (forcedCertIds.includes(cert.id)) {
+                                                    setForcedCertIds(forcedCertIds.filter(id => id !== cert.id))
+                                                } else {
+                                                    setForcedCertIds([...forcedCertIds, cert.id])
+                                                }
+                                            }}
+                                        >
+                                            <div className={`w-4 h-4 rounded border flex items-center justify-center font-black transition-all ${
+                                                forcedCertIds.includes(cert.id) ? 'bg-accent-blue border-accent-blue' : 'border-text-muted'
+                                            }`}>
+                                                {forcedCertIds.includes(cert.id) && <Check size={10} className="text-white" />}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <span className="text-[10px] font-bold text-[var(--text-primary)] truncate block">{cert.title}</span>
+                                                <span className="text-[9px] text-text-muted truncate block">{cert.issuer}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {allCerts.length === 0 && (
+                                        <p className="text-[10px] text-text-muted text-center py-4 bg-surface-hover rounded-xl border border-dashed border-border-subtle italic col-span-2">
+                                            No certifications found. Add them in your profile.
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </div>

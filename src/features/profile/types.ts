@@ -62,6 +62,7 @@ export interface Certificate {
     expiry_date: string | null
     credential_url: string | null
     description: string | null
+    is_hero: boolean
     created_at: string
 }
 

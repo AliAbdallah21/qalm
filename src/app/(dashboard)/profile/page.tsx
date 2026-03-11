@@ -1,4 +1,6 @@
 import { getFullProfile } from '@/features/profile/queries'
+import { getUserProjects } from '@/features/projects/queries'
+import { getStoredRepos } from '@/features/github/queries'
 import { createServerClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import ProfileForms from '@/components/shared/ProfileForms'
@@ -14,6 +16,8 @@ export default async function ProfilePage() {
     }
 
     const fullProfile = await getFullProfile(user.id)
+    const projects = await getUserProjects(user.id)
+    const repos = await getStoredRepos(user.id)
 
     return (
         <div className="space-y-12 animate-in fade-in duration-700 max-w-[1000px] mx-auto pb-12">
@@ -62,7 +66,7 @@ export default async function ProfilePage() {
                         </div>
                         <h2 className="text-xl font-black text-[var(--text-primary)] italic tracking-tight uppercase">Technical Parameters</h2>
                     </div>
-                    <ProfileForms initialData={fullProfile} />
+                    <ProfileForms initialData={fullProfile} initialProjects={projects} githubRepos={repos} />
                 </section>
             </div>
         </div>

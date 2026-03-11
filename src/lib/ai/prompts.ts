@@ -12,6 +12,8 @@ Your task is to generate a tailored, ATS-optimized CV that:
 - Selects the most relevant GitHub projects to feature
 - Keeps everything factually accurate — never invent experience or skills the user doesn't have
 
+{{FORCED_OPTIONS}}
+
 SECTION LIMIT RULES:
 1. Projects: Include MAXIMUM 3 projects. Choose the 3 most relevant to the job description. Never include more than 3.
 2. Skills: MAXIMUM 4 categories. Never include soft skills like Communication, Presentation Skills, Problem Solving, Project Management. Keep each category to MAXIMUM 8 skills.
@@ -369,11 +371,12 @@ export function buildEmailClassificationPrompt(emailSubject: string, emailBody: 
     .replace('{{COMPANY_NAME}}', companyName)
 }
 
-export function buildCVGenerationPrompt(profile: unknown, jobDescription: string, jobTitle: string): string {
+export function buildCVGenerationPrompt(profile: unknown, jobDescription: string, jobTitle: string, forcedOptionsText: string = ''): string {
   return CV_GENERATION_PROMPT
     .replace('{{PROFILE_JSON}}', JSON.stringify(profile, null, 2))
     .replace('{{JOB_DESCRIPTION}}', jobDescription)
     .replace(/\{\{JOB_TITLE\}\}/g, jobTitle)
+    .replace('{{FORCED_OPTIONS}}', forcedOptionsText)
 }
 
 export function buildGithubReadmeSummaryPrompt(readmeContent: string): string {

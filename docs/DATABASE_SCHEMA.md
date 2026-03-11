@@ -39,6 +39,24 @@ updated_at      timestamptz DEFAULT now()
 
 ---
 
+## projects
+
+```sql
+id              uuid PRIMARY KEY DEFAULT gen_random_uuid()
+user_id         uuid REFERENCES auth.users(id) ON DELETE CASCADE
+name            text NOT NULL
+description     text
+technologies    text[] DEFAULT '{}'
+url             text
+github_repo_id  uuid REFERENCES github_repos(id) ON DELETE SET NULL
+is_hero         boolean DEFAULT false
+start_date      date
+end_date        date
+created_at      timestamptz DEFAULT now()
+```
+
+---
+
 ## experiences
 
 ```sql
@@ -98,8 +116,9 @@ issue_date      date
 expiry_date     date            -- null if no expiry
 credential_url  text
 description     text
+is_hero         boolean DEFAULT false
 created_at      timestamptz DEFAULT now()
-```
+``````
 
 ---
 
@@ -120,11 +139,12 @@ stars           integer DEFAULT 0
 forks           integer DEFAULT 0
 is_private      boolean DEFAULT false
 is_featured     boolean DEFAULT false
+is_hero         boolean DEFAULT false
 readme_summary  text            -- AI-generated summary of README
 html_url        text
 created_at      timestamptz DEFAULT now()
 last_synced_at  timestamptz DEFAULT now()
-```
+``````
 
 ---
 

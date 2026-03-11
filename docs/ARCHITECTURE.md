@@ -74,6 +74,9 @@ qalm/
 │   │   │   ├── actions.ts
 │   │   │   ├── queries.ts
 │   │   │   └── types.ts
+│   │   ├── projects/
+│   │   │   ├── queries.ts
+│   │   │   └── types.ts
 │   │   ├── job-tracker/          ← Phase 2
 │   │   ├── email-intel/          ← Phase 3
 │   │   └── analytics/            ← Phase 4

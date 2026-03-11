@@ -188,7 +188,6 @@ GET    /api/profile/certificates
 POST   /api/profile/certificates
 DELETE /api/profile/certificates/[id]
 ```
-
 ### POST Request Body
 
 ```json
@@ -199,6 +198,32 @@ DELETE /api/profile/certificates/[id]
   "expiry_date": null,
   "credential_url": "https://coursera.org/...",
   "description": "..."
+}
+```
+
+---
+
+# Projects
+
+```
+GET    /api/profile/projects
+POST   /api/profile/projects
+PATCH  /api/profile/projects/[id]
+DELETE /api/profile/projects/[id]
+PATCH  /api/profile/projects/[id]/hero
+```
+
+### POST Request Body
+
+```json
+{
+  "name": "Qalm",
+  "description": "AI-powered career assistant",
+  "technologies": ["Next.js", "TypeScript", "Supabase"],
+  "url": "https://qalm.app",
+  "start_date": "2026-03-01",
+  "end_date": null,
+  "is_hero": true
 }
 ```
 
@@ -259,7 +284,14 @@ Generates a tailored CV.
   "job_description": "We are looking for a Senior AI Engineer...",
   "job_title": "Senior AI Engineer",
   "company_name": "OpenAI",
-  "template_id": "experienced" // matches a key in the TEMPLATES registry defaults to 'experienced'
+  "template_id": "experienced", // matches a key in the TEMPLATES registry defaults to 'experienced'
+  "forcedProjectIds": ["uuid-1", "uuid-2"],
+  "forcedProjectDescriptions": {
+    "uuid-1": "Managed a team of designers to build a new UI..."
+  },
+  "allowAiProjects": true,
+  "forcedCertIds": ["uuid-3"],
+  "allowAiCerts": true
 }
 ```
 

@@ -6,7 +6,7 @@ Feature flags control what is enabled, disabled, or coming soon. Before building
 
 The `canUserAccess()` function in `src/lib/access/permissions.ts` is the single place that enforces these flags at runtime. Never check phase or tier anywhere else in the codebase.
 
-**Current Phase:** Phase 1
+**Current Phase:** Phase 2
 
 ---
 
@@ -27,10 +27,11 @@ The `canUserAccess()` function in `src/lib/access/permissions.ts` is the single 
 | cv_download_pdf        | Download CV as PDF           | 1     | ✅ ENABLED   | free          |
 | cv_history             | View Past Generated CVs      | 1     | ✅ ENABLED   | free          |
 | dashboard_completeness | Profile Completeness Score   | 1     | ✅ ENABLED   | free          |
-| linkedin_import        | LinkedIn ZIP Import          | 2     | 🔒 DISABLED | free          |
-| cover_letter           | Cover Letter Generation      | 2     | 🔒 DISABLED | free          |
-| job_tracker            | Job Application Tracker      | 2     | 🔒 DISABLED | free          |
-| ats_score              | ATS Keyword Score            | 2     | 🔒 DISABLED | free          |
+| linkedin_import        | LinkedIn ZIP Import          | 2     | ✅ ENABLED   | free          |
+| cover_letter           | Cover Letter Generation      | 2     | ✅ ENABLED   | free          |
+| job_tracker            | Job Application Tracker      | 2     | ✅ ENABLED   | free          |
+| ats_score              | ATS Keyword Score            | 2     | ✅ ENABLED   | free          |
+| profile_projects       | User Projects Section        | 2     | ✅ ENABLED   | free          |
 | cv_versions            | Multiple CV Versions per Job | 2     | 🔒 DISABLED | free          |
 | gmail_connect          | Connect Gmail Account        | 3     | 🔒 DISABLED | free          |
 | email_scan             | Auto-scan Job Emails         | 3     | 🔒 DISABLED | free          |
@@ -76,6 +77,11 @@ const ENABLED_FEATURES = new Set([
   'cv_download_pdf',
   'cv_history',
   'dashboard_completeness',
+  'linkedin_import',
+  'cover_letter',
+  'job_tracker',
+  'ats_score',
+  'profile_projects',
 ])
 
 export async function canUserAccess(userId: string, feature: string): Promise<boolean> {

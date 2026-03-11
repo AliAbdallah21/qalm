@@ -28,13 +28,19 @@ import type {
     Language,
     Profile
 } from '@/features/profile/types'
+import type { Project } from '@/features/projects/types'
+import type { GithubRepo } from '@/features/github/types'
+import ProjectsSection from '@/features/projects/components/ProjectsSection'
 
 interface ProfileFormsProps {
     initialData: FullProfileData
+    initialProjects: Project[]
+    githubRepos: GithubRepo[]
 }
 
-export default function ProfileForms({ initialData }: ProfileFormsProps) {
+export default function ProfileForms({ initialData, initialProjects, githubRepos }: ProfileFormsProps) {
     const [data, setData] = useState(initialData)
+    const [projects, setProjects] = useState(initialProjects)
     const [loading, setLoading] = useState<string | null>(null)
     const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
 
@@ -97,6 +103,15 @@ export default function ProfileForms({ initialData }: ProfileFormsProps) {
                     showNotification={showNotification}
                 />
             </div>
+
+            <ProjectsSection 
+                projects={projects}
+                githubRepos={githubRepos}
+                onUpdate={setProjects}
+                loading={loading === 'projects'}
+                setLoading={(l: boolean) => setLoading(l ? 'projects' : null)}
+                showNotification={showNotification}
+            />
 
             <CertificatesSection
                 certificates={data.certificates}

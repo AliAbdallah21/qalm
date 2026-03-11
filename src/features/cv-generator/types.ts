@@ -54,6 +54,9 @@ export interface StructuredCV {
     projects: CVProject[]
     certificates: CVCertificate[]
     ats_score: number
+    heroProjects?: CVProject[]
+    forcedProjects?: Array<{ project: CVProject, customDescription?: string }>
+    heroCertifications?: CVCertificate[]
 }
 
 export interface ATSBreakdown {

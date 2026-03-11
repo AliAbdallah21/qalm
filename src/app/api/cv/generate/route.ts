@@ -26,7 +26,18 @@ export async function POST(request: Request) {
         }
 
         const body = await request.json()
-        const { job_description, job_title, company_name, template_id = 'experienced', category } = body
+        const { 
+            job_description, 
+            job_title, 
+            company_name, 
+            template_id = 'experienced', 
+            category,
+            forcedProjectIds = [],
+            forcedProjectDescriptions = {},
+            allowAiProjects = true,
+            forcedCertIds = [],
+            allowAiCerts = true
+        } = body
         console.log('JOB TITLE RECEIVED:', job_title)
 
         if (!job_description || !job_title || !company_name) {
@@ -36,7 +47,12 @@ export async function POST(request: Request) {
         const result = await generateCVAction({
             job_description,
             job_title,
-            company_name
+            company_name,
+            forcedProjectIds,
+            forcedProjectDescriptions,
+            allowAiProjects,
+            forcedCertIds,
+            allowAiCerts
         })
 
         if (result.error || !result.data) {
