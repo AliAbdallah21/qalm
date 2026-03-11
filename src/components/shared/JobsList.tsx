@@ -4,9 +4,21 @@ import { useState, useTransition } from 'react'
 import type { JobApplication, ApplicationStatus } from '@/features/job-tracker/types'
 import { updateStatusAction, deleteApplicationAction } from '@/features/job-tracker/actions'
 import {
-    Briefcase, ExternalLink, Trash2, Target, Calendar, ChevronDown, FileText
+    Briefcase, ExternalLink, Trash2, Target, Calendar, ChevronDown, FileText, Tag
 } from 'lucide-react'
 import Link from 'next/link'
+
+const CATEGORY_COLORS: Record<string, string> = {
+    'Frontend': 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+    'Backend': 'bg-green-500/10 text-green-500 border-green-500/20',
+    'Full Stack': 'bg-purple-500/10 text-purple-500 border-purple-500/20',
+    'AI/ML': 'bg-accent/10 text-accent border-accent/20',
+    'Data Science': 'bg-cyan-500/10 text-cyan-500 border-cyan-500/20',
+    'DevOps': 'bg-orange-500/10 text-orange-500 border-orange-500/20',
+    'Mobile': 'bg-pink-500/10 text-pink-500 border-pink-500/20',
+    'Security': 'bg-red-500/10 text-red-500 border-red-500/20',
+    'Other': 'bg-gray-500/10 text-gray-400 border-gray-500/20'
+}
 
 const STATUS_CONFIG: Record<ApplicationStatus, { label: string; classes: string }> = {
     applied: { label: 'Applied', classes: 'bg-accent-blue/10 text-accent-blue border-accent-blue/20' },
@@ -63,7 +75,15 @@ function JobCard({ app, onDeleted, onStatusChanged }: JobCardProps) {
                             </a>
                         )}
                     </div>
-                    <p className="text-text-secondary font-bold text-sm tracking-wide uppercase">{app.role}</p>
+                    
+                    <div className="flex items-center gap-2 mb-2">
+                        <p className="text-text-secondary font-bold text-sm tracking-wide uppercase">{app.role}</p>
+                        {app.category && (
+                            <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border ${CATEGORY_COLORS[app.category] || CATEGORY_COLORS['Other']}`}>
+                                {app.category}
+                            </span>
+                        )}
+                    </div>
 
                     <div className="flex items-center gap-3 mt-3">
                         <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-text-muted">
@@ -158,6 +178,12 @@ interface JobsListProps {
 
 export default function JobsList({ initialApplications }: JobsListProps) {
     const [applications, setApplications] = useState<JobApplication[]>(initialApplications)
+    const [filterCategory, setFilterCategory] = useState<string>('All Categories')
+
+    const filteredApplications = applications.filter(app => {
+        if (filterCategory === 'All Categories') return true
+        return app.category === filterCategory
+    })
 
     const handleDeleted = (id: string) => {
         setApplications(prev => prev.filter(a => a.id !== id))
@@ -190,15 +216,44 @@ export default function JobsList({ initialApplications }: JobsListProps) {
     }
 
     return (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            {applications.map(app => (
-                <JobCard
-                    key={app.id}
-                    app={app}
-                    onDeleted={handleDeleted}
-                    onStatusChanged={handleStatusChanged}
-                />
-            ))}
+        <div className="space-y-6">
+            <div className="flex items-center gap-4 bg-bg-surface border border-border-default rounded-2xl p-4">
+                <Tag size={18} className="text-text-muted" />
+                <span className="text-xs font-black uppercase tracking-[0.2em] text-text-sub">Filter</span>
+                <div className="relative">
+                    <select
+                        value={filterCategory}
+                        onChange={(e) => setFilterCategory(e.target.value)}
+                        className="bg-bg-surface-hover border border-border-subtle rounded-xl px-4 py-2 text-text-main text-xs font-bold outline-none focus:border-accent appearance-none pr-10 cursor-pointer"
+                    >
+                        <option value="All Categories">All Categories</option>
+                        {['Frontend', 'Backend', 'Full Stack', 'AI/ML', 'Data Science', 'DevOps', 'Mobile', 'Security', 'Other'].map(cat => (
+                            <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                    </select>
+                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
+                </div>
+                <span className="text-[10px] font-bold text-text-muted ml-auto">
+                    {filteredApplications.length} {filteredApplications.length === 1 ? 'result' : 'results'}
+                </span>
+            </div>
+
+            {filteredApplications.length === 0 ? (
+                <div className="text-center py-12 text-text-muted font-medium border border-border-default border-dashed rounded-[32px]">
+                    No applications match the selected category filter.
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    {filteredApplications.map(app => (
+                        <JobCard
+                            key={app.id}
+                            app={app}
+                            onDeleted={handleDeleted}
+                            onStatusChanged={handleStatusChanged}
+                        />
+                    ))}
+                </div>
+            )}
         </div>
     )
 }

@@ -125,6 +125,21 @@ last_synced_at  timestamptz DEFAULT now()
 
 ---
 
+## cv_templates
+
+Stores custom user-uploaded LaTeX templates.
+
+```sql
+id              uuid PRIMARY KEY DEFAULT gen_random_uuid()
+user_id         uuid REFERENCES auth.users(id) ON DELETE CASCADE
+name            text NOT NULL
+latex_code      text NOT NULL
+is_active       boolean DEFAULT false
+created_at      timestamptz DEFAULT now()
+```
+
+---
+
 ## cv_generations
 
 Every CV ever generated. Never deleted — used for history and analytics.
@@ -139,6 +154,8 @@ generated_cv    jsonb           -- structured CV data (sections, bullets)
 pdf_url         text            -- Supabase Storage URL
 ats_score       integer         -- 0-100 keyword match score
 model_used      text            -- which AI model generated this
+template_id     uuid REFERENCES cv_templates(id) -- if null, standard template
+category        text DEFAULT 'Other' -- e.g. "Frontend", "Backend", "AI/ML"
 created_at      timestamptz DEFAULT now()
 ```
 
@@ -160,6 +177,7 @@ status              text DEFAULT 'applied'
 applied_date        date DEFAULT CURRENT_DATE
 expected_salary     text
 notes               text
+category            text DEFAULT 'Other' -- e.g. "Frontend", "Backend", "AI/ML"
 created_at          timestamptz DEFAULT now()
 updated_at          timestamptz DEFAULT now()
 ```

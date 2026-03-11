@@ -65,6 +65,15 @@ export interface ATSBreakdown {
     improvement_tips: string[]
 }
 
+export interface CVTemplate {
+    id: string
+    user_id: string
+    name: string
+    latex_code: string
+    is_active: boolean
+    created_at: string
+}
+
 export interface CVGeneration {
     id: string
     user_id: string
@@ -78,6 +87,8 @@ export interface CVGeneration {
     pdf_error?: string
     ats_score: number | null
     ats_breakdown: ATSBreakdown | null
+    template_id?: string | null
+    category?: string
     model_used: string | null
     created_at: string
 }

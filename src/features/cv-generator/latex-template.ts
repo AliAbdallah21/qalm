@@ -1,4 +1,4 @@
-import { StructuredCV } from './types';
+import { StructuredCV, CVExperience, CVSkillCategory, CVCertificate, CVEducation, CVProject } from './types';
 import latex from 'node-latex';
 
 /**
@@ -17,6 +17,42 @@ function escapeLatex(text: string | null | undefined): string {
     .replace(/\}/g, '\\}')
     .replace(/~/g, '\\textasciitilde ')
     .replace(/\^/g, '\\textasciicircum ');
+}
+
+export function buildExperienceLatex(experience: CVExperience[]): string {
+  if (!experience || experience.length === 0) return '';
+  return `\\section{Professional Experience}\n` + experience.map(exp => `
+\\customcventry{${escapeLatex(exp.start_date)} ‐ ${escapeLatex(exp.end_date)}}{{\\color{blue}{${escapeLatex(exp.company)}}}}{${escapeLatex(exp.title)}}{}{}{
+\\begin{itemize}[leftmargin=0.6cm, label={\\textbullet}]
+${exp.bullets.map(b => `\\item ${escapeLatex(b)}`).join('\n')}
+\\end{itemize}}`).join('\n');
+}
+
+export function buildSkillsLatex(skills: { categories: CVSkillCategory[] }): string {
+  if (!skills || !skills.categories || skills.categories.length === 0) return '';
+  return `\\section{Skills}\n\\begin{itemize}[label=\\textbullet]\n    ${skills.categories.map(cat => `\\item \\textbf{${escapeLatex(cat.name)}:} ${escapeLatex(cat.skills.join(', '))}.`).join('\n    ')}\n\\end{itemize}`;
+}
+
+export function buildCertificatesLatex(certificates: CVCertificate[]): string {
+  if (!certificates || certificates.length === 0) return '';
+  return `\\section{Certifications}\n` + certificates.map(cert => `
+\\certcventry{${cert.url || 'https://github.com'}}{${escapeLatex(cert.title)}}{${escapeLatex(cert.issuer)}}{
+\\begin{itemize}[leftmargin=0.6cm, label={\\textbullet}]
+\\item ${escapeLatex(cert.date)}
+\\end{itemize}}`).join('\n');
+}
+
+export function buildEducationLatex(education: CVEducation[], location: string): string {
+  if (!education || education.length === 0) return '';
+  return `\\section{Education}\n` + education.map(edu => `
+\\customcventry{${escapeLatex(edu.dates)}}{{\\color{blue}{${escapeLatex(edu.institution)}}}}{${escapeLatex(edu.degree)}, ${escapeLatex(edu.field)}}{${escapeLatex(location?.split(',')[0] || '')}}{}{}
+`).join('\n');
+}
+
+export function buildProjectsLatex(projects: CVProject[]): string {
+  if (!projects || projects.length === 0) return '';
+  return `\\section{Projects}\n{\\begin{itemize}[label=\\textbullet]\n${projects.map(proj => `
+\\item {\\textbf{\\href{${proj.url || 'https://github.com'}}{${escapeLatex(proj.name)}}:} ${escapeLatex(proj.description)}}`).join('\n')}\n\\end{itemize}}`;
 }
 
 export function buildLatexCV(cvData: StructuredCV): string {
@@ -105,35 +141,15 @@ ${header.linkedin ? `\\faLinkedin\\enspace \\color{blue}\\href{${header.linkedin
 
 \\vspace{4mm}
 
-\\section{Professional Experience}
-${experience.map(exp => `
-\\customcventry{${escapeLatex(exp.start_date)} ‐ ${escapeLatex(exp.end_date)}}{{\\color{blue}{${escapeLatex(exp.company)}}}}{${escapeLatex(exp.title)}}{}{}{
-\\begin{itemize}[leftmargin=0.6cm, label={\\textbullet}]
-${exp.bullets.map(b => `\\item ${escapeLatex(b)}`).join('\n')}
-\\end{itemize}}`).join('\n')}
+${buildExperienceLatex(experience)}
 
-\\section{Skills}
-\\begin{itemize}[label=\\textbullet]
-    ${skills.categories.map(cat => `\\item \\textbf{${escapeLatex(cat.name)}:} ${escapeLatex(cat.skills.join(', '))}.`).join('\n    ')}
-\\end{itemize}
+${buildSkillsLatex(skills)}
 
-\\section{Certifications}
-${certificates.map(cert => `
-\\certcventry{${cert.url || 'https://github.com'}}{${escapeLatex(cert.title)}}{${escapeLatex(cert.issuer)}}{
-\\begin{itemize}[leftmargin=0.6cm, label={\\textbullet}]
-\\item ${escapeLatex(cert.date)}
-\\end{itemize}}`).join('\n')}
+${buildCertificatesLatex(certificates)}
 
-\\section{Education}
-${education.map(edu => `
-\\customcventry{${escapeLatex(edu.dates)}}{{\\color{blue}{${escapeLatex(edu.institution)}}}}{${escapeLatex(edu.degree)}, ${escapeLatex(edu.field)}}{${escapeLatex(header.location.split(',')[0])}}{}{}
-`).join('\n')}
+${buildEducationLatex(education, header.location)}
 
-\\section{Projects}
-{\\begin{itemize}[label=\\textbullet]
-${projects.map(proj => `
-\\item {\\textbf{\\href{${proj.url || 'https://github.com'}}{${escapeLatex(proj.name)}}:} ${escapeLatex(proj.description)}}`).join('\n')}
-\\end{itemize}}
+${buildProjectsLatex(projects)}
 
 \\end{document}
 `;
@@ -155,4 +171,33 @@ export async function generateLatexCVPdf(cvData: StructuredCV): Promise<Buffer> 
     stream.on('error', (err) => reject(err));
     stream.on('end', () => resolve(Buffer.concat(chunks)));
   });
+}
+
+export function injectIntoTemplate(template: string, cv: StructuredCV): string {
+  let result = template;
+
+  const escapedName = escapeLatex(cv.header.name);
+  const escapedEmail = escapeLatex(cv.header.email);
+  const escapedPhone = escapeLatex(cv.header.phone);
+  const escapedLocation = escapeLatex(cv.header.location);
+  const escapedLinkedin = escapeLatex(cv.header.linkedin);
+  const escapedGithub = escapeLatex(cv.header.github);
+
+  const summaryLatex = cv.header.title ? `\\section{Summary}\n${escapeLatex(cv.header.title)}` : '';
+
+  result = result.replace(/\{\{NAME\}\}/g, escapedName);
+  result = result.replace(/\{\{EMAIL\}\}/g, escapedEmail);
+  result = result.replace(/\{\{PHONE\}\}/g, escapedPhone);
+  result = result.replace(/\{\{LOCATION\}\}/g, escapedLocation);
+  result = result.replace(/\{\{LINKEDIN\}\}/g, escapedLinkedin);
+  result = result.replace(/\{\{GITHUB\}\}/g, escapedGithub);
+  result = result.replace(/\{\{SUMMARY\}\}/g, summaryLatex);
+
+  result = result.replace(/\{\{EXPERIENCE\}\}/g, buildExperienceLatex(cv.experience));
+  result = result.replace(/\{\{EDUCATION\}\}/g, buildEducationLatex(cv.education, cv.header.location));
+  result = result.replace(/\{\{SKILLS\}\}/g, buildSkillsLatex(cv.skills));
+  result = result.replace(/\{\{PROJECTS\}\}/g, buildProjectsLatex(cv.projects));
+  result = result.replace(/\{\{CERTIFICATES\}\}/g, buildCertificatesLatex(cv.certificates));
+
+  return result;
 }

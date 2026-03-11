@@ -11,6 +11,7 @@ export interface JobApplication {
     applied_date: string
     expected_salary: string | null
     notes: string | null
+    category: string | null
     created_at: string
     updated_at: string
     // Joined from cv_generations
@@ -27,6 +28,7 @@ export interface CreateJobApplicationInput {
     applied_date?: string
     expected_salary?: string | null
     notes?: string | null
+    category?: string | null
 }
 
 export interface UpdateJobApplicationInput {

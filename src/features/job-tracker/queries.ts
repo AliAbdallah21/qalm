@@ -16,6 +16,7 @@ export async function getApplicationsByUserId(userId: string): Promise<JobApplic
             applied_date,
             expected_salary,
             notes,
+            category,
             created_at,
             updated_at,
             cv_generations (
@@ -41,6 +42,7 @@ export async function getApplicationsByUserId(userId: string): Promise<JobApplic
             applied_date: row.applied_date,
             expected_salary: row.expected_salary,
             notes: row.notes,
+            category: row.category,
             created_at: row.created_at,
             updated_at: row.updated_at,
             ats_score: cv?.ats_score ?? null,
@@ -64,6 +66,7 @@ export async function getApplicationById(userId: string, id: string): Promise<Jo
             applied_date,
             expected_salary,
             notes,
+            category,
             created_at,
             updated_at,
             cv_generations (
@@ -89,6 +92,7 @@ export async function getApplicationById(userId: string, id: string): Promise<Jo
         applied_date: data.applied_date,
         expected_salary: data.expected_salary,
         notes: data.notes,
+        category: data.category,
         created_at: data.created_at,
         updated_at: data.updated_at,
         ats_score: cv?.ats_score ?? null,
@@ -110,8 +114,9 @@ export async function createApplication(userId: string, input: CreateJobApplicat
             applied_date: input.applied_date ?? new Date().toISOString().split('T')[0],
             expected_salary: input.expected_salary ?? null,
             notes: input.notes ?? null,
+            category: input.category ?? 'Other',
         })
-        .select('id, user_id, cv_generation_id, company, role, job_url, status, applied_date, expected_salary, notes, created_at, updated_at')
+        .select('id, user_id, cv_generation_id, company, role, job_url, status, applied_date, expected_salary, notes, category, created_at, updated_at')
         .single()
 
     if (error || !data) throw new Error(error?.message ?? 'Failed to create application')
@@ -134,7 +139,7 @@ export async function updateApplication(userId: string, id: string, input: Updat
         })
         .eq('user_id', userId)
         .eq('id', id)
-        .select('id, user_id, cv_generation_id, company, role, job_url, status, applied_date, expected_salary, notes, created_at, updated_at')
+        .select('id, user_id, cv_generation_id, company, role, job_url, status, applied_date, expected_salary, notes, category, created_at, updated_at')
         .single()
 
     if (error || !data) throw new Error(error?.message ?? 'Failed to update application')

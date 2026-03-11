@@ -33,6 +33,7 @@ const navGroups = [
         items: [
             { name: 'CV Builder', href: '/cv-builder', icon: FileText },
             { name: 'CV History', href: '/cv-history', icon: BarChart3 },
+            { name: 'Templates', href: '/templates', icon: FileText },
         ]
     },
     {

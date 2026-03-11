@@ -246,6 +246,26 @@ PATCH  /api/github/repos/[id]/feature
 
 ---
 
+# CV Templates (Phase 4)
+
+```
+GET    /api/templates
+POST   /api/templates
+DELETE /api/templates/[id]
+PATCH  /api/templates/[id]/activate
+```
+
+### POST Request Body
+
+```json
+{
+  "name": "Academic Styling",
+  "latex_code": "\\documentclass... {{NAME}} ..."
+}
+```
+
+---
+
 # CV Generation
 
 ## POST /api/cv/generate

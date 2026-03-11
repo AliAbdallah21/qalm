@@ -4,7 +4,7 @@
 
 | Layer | Technology | Purpose |
 |---|---|---|
-| Frontend + Backend | Next.js 14 (App Router) | One repo, one deploy |
+| Frontend + Backend | Next.js 16.1.6 (App Router) | One repo, one deploy |
 | Language | TypeScript | Type safety, better AI assistance |
 | Database | Supabase (PostgreSQL) | Auth + DB + Storage in one |
 | Auth | Supabase Auth | GitHub OAuth, email/password |
