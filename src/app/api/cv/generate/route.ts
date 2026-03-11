@@ -1,5 +1,5 @@
 import { generateCVAction } from '@/features/cv-generator/actions'
-import { buildLatexString } from '@/features/cv-generator/latex-template'
+import { getTemplate, TEMPLATES } from '@/lib/cv-templates/index'
 import { createServerClient } from '@/lib/supabase/server'
 import { updateCV } from '@/features/cv-generator/queries'
 import { callAI, parseAIJSON } from '@/lib/ai/client'
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
         }
 
         const body = await request.json()
-        const { job_description, job_title, company_name, template_id, category } = body
+        const { job_description, job_title, company_name, template_id = 'experienced', category } = body
         console.log('JOB TITLE RECEIVED:', job_title)
 
         if (!job_description || !job_title || !company_name) {
@@ -60,30 +60,13 @@ export async function POST(request: Request) {
             console.error('ATS Breakdown generation failed:', atsError)
         }
 
-        let latexSource = ''
-        if (template_id && template_id !== 'default') {
-            const { data: template, error: templateError } = await supabase
-                .from('cv_templates')
-                .select('id, latex_code, is_active')
-                .eq('id', template_id)
-                .eq('user_id', user.id)
-                .single()
-            
-            if (template && !templateError) {
-                const { injectIntoTemplate } = await import('@/features/cv-generator/latex-template')
-                latexSource = injectIntoTemplate(template.latex_code, generated_cv)
-            } else {
-                latexSource = buildLatexString(generated_cv)
-            }
-        } else {
-            latexSource = buildLatexString(generated_cv)
-        }
+        const latexSource = getTemplate(template_id).build(generated_cv)
 
         await updateCV(user.id, cv_id, {
             latex_source: latexSource,
             pdf_status: 'pending',
             ats_breakdown: atsBreakdown,
-            template_id: template_id || null,
+            template_id: template_id,
             category: category || 'Other'
         })
 

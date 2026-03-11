@@ -1,0 +1,399 @@
+
+> qalm@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 10 errors:
+./node_modules/node-latex/index.js:4:15
+Module not found: Can't resolve 'child_process'
+[0m [90m 2 |[39m
+ [90m 3 |[39m [36mconst[39m strToStream [33m=[39m require([32m'string-to-stream'[39m)
+[31m[1m>[22m[39m[90m 4 |[39m [36mconst[39m spawn [33m=[39m require([32m'child_process'[39m)[33m.[39mspawn
+ [90m   |[39m               [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5 |[39m [36mconst[39m through [33m=[39m require([32m'through2'[39m)
+ [90m 6 |[39m [36mconst[39m fse [33m=[39m require([32m'fs-extra'[39m)
+ [90m 7 |[39m [36mconst[39m temp [33m=[39m require([32m'temp'[39m)[33m.[39mtrack()[0m
+
+
+
+Import traces:
+  App Route:
+    ./node_modules/node-latex/index.js
+    ./src/features/cv-generator/latex-template.ts
+    ./src/lib/cv-templates/student.ts
+    ./src/lib/cv-templates/index.ts
+    ./src/app/api/cv/generate/route.ts
+
+  Client Component Browser:
+    ./node_modules/node-latex/index.js [Client Component Browser]
+    ./src/features/cv-generator/latex-template.ts [Client Component Browser]
+    ./src/lib/cv-templates/student.ts [Client Component Browser]
+    ./src/lib/cv-templates/index.ts [Client Component Browser]
+    ./src/app/(dashboard)/templates/page.tsx [Client Component Browser]
+    ./src/app/(dashboard)/templates/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./node_modules/node-latex/index.js [Client Component SSR]
+    ./src/features/cv-generator/latex-template.ts [Client Component SSR]
+    ./src/lib/cv-templates/student.ts [Client Component SSR]
+    ./src/lib/cv-templates/index.ts [Client Component SSR]
+    ./src/app/(dashboard)/templates/page.tsx [Client Component SSR]
+    ./src/app/(dashboard)/templates/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./node_modules/fs-extra/lib/empty/index.js:3:12
+Module not found: Can't resolve 'fs'
+[0m [90m 1 |[39m [32m'use strict'[39m
+ [90m 2 |[39m
+[31m[1m>[22m[39m[90m 3 |[39m [36mconst[39m fs [33m=[39m require([32m'fs'[39m)
+ [90m   |[39m            [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 4 |[39m [36mconst[39m path [33m=[39m require([32m'path'[39m)
+ [90m 5 |[39m [36mconst[39m mkdir [33m=[39m require([32m'../mkdirs'[39m)
+ [90m 6 |[39m [36mconst[39m remove [33m=[39m require([32m'../remove'[39m)[0m
+
+
+
+Import traces:
+  App Route:
+    ./node_modules/fs-extra/lib/empty/index.js
+    ./node_modules/fs-extra/lib/index.js
+    ./node_modules/node-latex/index.js
+    ./src/features/cv-generator/latex-template.ts
+    ./src/lib/cv-templates/student.ts
+    ./src/lib/cv-templates/index.ts
+    ./src/app/api/cv/generate/route.ts
+
+  Client Component Browser:
+    ./node_modules/fs-extra/lib/empty/index.js [Client Component Browser]
+    ./node_modules/fs-extra/lib/index.js [Client Component Browser]
+    ./node_modules/node-latex/index.js [Client Component Browser]
+    ./src/features/cv-generator/latex-template.ts [Client Component Browser]
+    ./src/lib/cv-templates/student.ts [Client Component Browser]
+    ./src/lib/cv-templates/index.ts [Client Component Browser]
+    ./src/app/(dashboard)/templates/page.tsx [Client Component Browser]
+    ./src/app/(dashboard)/templates/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./node_modules/fs-extra/lib/empty/index.js [Client Component SSR]
+    ./node_modules/fs-extra/lib/index.js [Client Component SSR]
+    ./node_modules/node-latex/index.js [Client Component SSR]
+    ./src/features/cv-generator/latex-template.ts [Client Component SSR]
+    ./src/lib/cv-templates/student.ts [Client Component SSR]
+    ./src/lib/cv-templates/index.ts [Client Component SSR]
+    ./src/app/(dashboard)/templates/page.tsx [Client Component SSR]
+    ./src/app/(dashboard)/templates/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./node_modules/fs.realpath/index.js:8:10
+Module not found: Can't resolve 'fs'
+[0m [90m  6 |[39m realpath[33m.[39munmonkeypatch [33m=[39m unmonkeypatch
+ [90m  7 |[39m
+[31m[1m>[22m[39m[90m  8 |[39m [36mvar[39m fs [33m=[39m require([32m'fs'[39m)
+ [90m    |[39m          [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m  9 |[39m [36mvar[39m origRealpath [33m=[39m fs[33m.[39mrealpath
+ [90m 10 |[39m [36mvar[39m origRealpathSync [33m=[39m fs[33m.[39mrealpathSync
+ [90m 11 |[39m[0m
+
+
+
+Import trace:
+  Client Component Browser:
+    ./node_modules/fs.realpath/index.js [Client Component Browser]
+    ./node_modules/glob/glob.js [Client Component Browser]
+    ./node_modules/rimraf/rimraf.js [Client Component Browser]
+    ./node_modules/temp/lib/temp.js [Client Component Browser]
+    ./node_modules/node-latex/index.js [Client Component Browser]
+    ./src/features/cv-generator/latex-template.ts [Client Component Browser]
+    ./src/lib/cv-templates/student.ts [Client Component Browser]
+    ./src/lib/cv-templates/index.ts [Client Component Browser]
+    ./src/app/(dashboard)/templates/page.tsx [Client Component Browser]
+    ./src/app/(dashboard)/templates/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./node_modules/fs.realpath/old.js:24:10
+Module not found: Can't resolve 'fs'
+[0m [90m 22 |[39m [36mvar[39m pathModule [33m=[39m require([32m'path'[39m)[33m;[39m
+ [90m 23 |[39m [36mvar[39m isWindows [33m=[39m process[33m.[39mplatform [33m===[39m [32m'win32'[39m[33m;[39m
+[31m[1m>[22m[39m[90m 24 |[39m [36mvar[39m fs [33m=[39m require([32m'fs'[39m)[33m;[39m
+ [90m    |[39m          [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 25 |[39m
+ [90m 26 |[39m [90m// JavaScript implementation of realpath, ported from node pre-v6[39m
+ [90m 27 |[39m[0m
+
+
+
+Import trace:
+  Client Component Browser:
+    ./node_modules/fs.realpath/old.js [Client Component Browser]
+    ./node_modules/fs.realpath/index.js [Client Component Browser]
+    ./node_modules/glob/glob.js [Client Component Browser]
+    ./node_modules/rimraf/rimraf.js [Client Component Browser]
+    ./node_modules/temp/lib/temp.js [Client Component Browser]
+    ./node_modules/node-latex/index.js [Client Component Browser]
+    ./src/features/cv-generator/latex-template.ts [Client Component Browser]
+    ./src/lib/cv-templates/student.ts [Client Component Browser]
+    ./src/lib/cv-templates/index.ts [Client Component Browser]
+    ./src/app/(dashboard)/templates/page.tsx [Client Component Browser]
+    ./src/app/(dashboard)/templates/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./node_modules/glob/common.js:13:10
+Module not found: Can't resolve 'fs'
+[0m [90m 11 |[39m }
+ [90m 12 |[39m
+[31m[1m>[22m[39m[90m 13 |[39m [36mvar[39m fs [33m=[39m require([32m"fs"[39m)
+ [90m    |[39m          [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 14 |[39m [36mvar[39m path [33m=[39m require([32m"path"[39m)
+ [90m 15 |[39m [36mvar[39m minimatch [33m=[39m require([32m"minimatch"[39m)
+ [90m 16 |[39m [36mvar[39m isAbsolute [33m=[39m require([32m"path-is-absolute"[39m)[0m
+
+
+
+Import trace:
+  Client Component Browser:
+    ./node_modules/glob/common.js [Client Component Browser]
+    ./node_modules/glob/glob.js [Client Component Browser]
+    ./node_modules/rimraf/rimraf.js [Client Component Browser]
+    ./node_modules/temp/lib/temp.js [Client Component Browser]
+    ./node_modules/node-latex/index.js [Client Component Browser]
+    ./src/features/cv-generator/latex-template.ts [Client Component Browser]
+    ./src/lib/cv-templates/student.ts [Client Component Browser]
+    ./src/lib/cv-templates/index.ts [Client Component Browser]
+    ./src/app/(dashboard)/templates/page.tsx [Client Component Browser]
+    ./src/app/(dashboard)/templates/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./node_modules/graceful-fs/graceful-fs.js:1:10
+Module not found: Can't resolve 'fs'
+[0m[31m[1m>[22m[39m[90m 1 |[39m [36mvar[39m fs [33m=[39m require([32m'fs'[39m)
+ [90m   |[39m          [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 2 |[39m [36mvar[39m polyfills [33m=[39m require([32m'./polyfills.js'[39m)
+ [90m 3 |[39m [36mvar[39m legacy [33m=[39m require([32m'./legacy-streams.js'[39m)
+ [90m 4 |[39m [36mvar[39m clone [33m=[39m require([32m'./clone.js'[39m)[0m
+
+
+
+Import traces:
+  App Route:
+    ./node_modules/graceful-fs/graceful-fs.js
+    ./node_modules/fs-extra/lib/index.js
+    ./node_modules/node-latex/index.js
+    ./src/features/cv-generator/latex-template.ts
+    ./src/lib/cv-templates/experienced.ts
+    ./src/lib/cv-templates/index.ts
+    ./src/app/api/cv/generate/route.ts
+
+  Client Component Browser:
+    ./node_modules/graceful-fs/graceful-fs.js [Client Component Browser]
+    ./node_modules/fs-extra/lib/index.js [Client Component Browser]
+    ./node_modules/node-latex/index.js [Client Component Browser]
+    ./src/features/cv-generator/latex-template.ts [Client Component Browser]
+    ./src/lib/cv-templates/experienced.ts [Client Component Browser]
+    ./src/lib/cv-templates/index.ts [Client Component Browser]
+    ./src/app/(dashboard)/templates/page.tsx [Client Component Browser]
+    ./src/app/(dashboard)/templates/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./node_modules/graceful-fs/graceful-fs.js [Client Component SSR]
+    ./node_modules/fs-extra/lib/index.js [Client Component SSR]
+    ./node_modules/node-latex/index.js [Client Component SSR]
+    ./src/features/cv-generator/latex-template.ts [Client Component SSR]
+    ./src/lib/cv-templates/experienced.ts [Client Component SSR]
+    ./src/lib/cv-templates/index.ts [Client Component SSR]
+    ./src/app/(dashboard)/templates/page.tsx [Client Component SSR]
+    ./src/app/(dashboard)/templates/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./node_modules/jsonfile/index.js:5:9
+Module not found: Can't resolve 'fs'
+[0m [90m 3 |[39m   _fs [33m=[39m require([32m'graceful-fs'[39m)
+ [90m 4 |[39m } [36mcatch[39m (_) {
+[31m[1m>[22m[39m[90m 5 |[39m   _fs [33m=[39m require([32m'fs'[39m)
+ [90m   |[39m         [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 6 |[39m }
+ [90m 7 |[39m
+ [90m 8 |[39m [36mfunction[39m readFile (file[33m,[39m options[33m,[39m callback) {[0m
+
+
+
+Import traces:
+  App Route:
+    ./node_modules/jsonfile/index.js
+    ./node_modules/fs-extra/lib/json/jsonfile.js
+    ./node_modules/fs-extra/lib/json/index.js
+    ./node_modules/fs-extra/lib/index.js
+    ./node_modules/node-latex/index.js
+    ./src/features/cv-generator/latex-template.ts
+    ./src/lib/cv-templates/student.ts
+    ./src/lib/cv-templates/index.ts
+    ./src/app/api/cv/generate/route.ts
+
+  Client Component Browser:
+    ./node_modules/jsonfile/index.js [Client Component Browser]
+    ./node_modules/fs-extra/lib/json/jsonfile.js [Client Component Browser]
+    ./node_modules/fs-extra/lib/json/index.js [Client Component Browser]
+    ./node_modules/fs-extra/lib/index.js [Client Component Browser]
+    ./node_modules/node-latex/index.js [Client Component Browser]
+    ./src/features/cv-generator/latex-template.ts [Client Component Browser]
+    ./src/lib/cv-templates/student.ts [Client Component Browser]
+    ./src/lib/cv-templates/index.ts [Client Component Browser]
+    ./src/app/(dashboard)/templates/page.tsx [Client Component Browser]
+    ./src/app/(dashboard)/templates/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./node_modules/jsonfile/index.js [Client Component SSR]
+    ./node_modules/fs-extra/lib/json/jsonfile.js [Client Component SSR]
+    ./node_modules/fs-extra/lib/json/index.js [Client Component SSR]
+    ./node_modules/fs-extra/lib/index.js [Client Component SSR]
+    ./node_modules/node-latex/index.js [Client Component SSR]
+    ./src/features/cv-generator/latex-template.ts [Client Component SSR]
+    ./src/lib/cv-templates/student.ts [Client Component SSR]
+    ./src/lib/cv-templates/index.ts [Client Component SSR]
+    ./src/app/(dashboard)/templates/page.tsx [Client Component SSR]
+    ./src/app/(dashboard)/templates/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./node_modules/node-latex/index.js:9:12
+Module not found: Can't resolve 'fs'
+[0m [90m  7 |[39m [36mconst[39m temp [33m=[39m require([32m'temp'[39m)[33m.[39mtrack()
+ [90m  8 |[39m [36mconst[39m path [33m=[39m require([32m'path'[39m)
+[31m[1m>[22m[39m[90m  9 |[39m [36mconst[39m fs [33m=[39m require([32m'fs'[39m)
+ [90m    |[39m            [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 10 |[39m
+ [90m 11 |[39m [90m/**[39m
+ [90m 12 |[39m [90m * Generates a PDF stream from a LaTeX document.[39m[0m
+
+
+
+Import traces:
+  App Route:
+    ./node_modules/node-latex/index.js
+    ./src/features/cv-generator/latex-template.ts
+    ./src/lib/cv-templates/student.ts
+    ./src/lib/cv-templates/index.ts
+    ./src/app/api/cv/generate/route.ts
+
+  Client Component Browser:
+    ./node_modules/node-latex/index.js [Client Component Browser]
+    ./src/features/cv-generator/latex-template.ts [Client Component Browser]
+    ./src/lib/cv-templates/student.ts [Client Component Browser]
+    ./src/lib/cv-templates/index.ts [Client Component Browser]
+    ./src/app/(dashboard)/templates/page.tsx [Client Component Browser]
+    ./src/app/(dashboard)/templates/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./node_modules/node-latex/index.js [Client Component SSR]
+    ./src/features/cv-generator/latex-template.ts [Client Component SSR]
+    ./src/lib/cv-templates/student.ts [Client Component SSR]
+    ./src/lib/cv-templates/index.ts [Client Component SSR]
+    ./src/app/(dashboard)/templates/page.tsx [Client Component SSR]
+    ./src/app/(dashboard)/templates/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./node_modules/rimraf/rimraf.js:6:10
+Module not found: Can't resolve 'fs'
+[0m [90m 4 |[39m [36mvar[39m assert [33m=[39m require([32m"assert"[39m)
+ [90m 5 |[39m [36mvar[39m path [33m=[39m require([32m"path"[39m)
+[31m[1m>[22m[39m[90m 6 |[39m [36mvar[39m fs [33m=[39m require([32m"fs"[39m)
+ [90m   |[39m          [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 7 |[39m [36mvar[39m glob [33m=[39m require([32m"glob"[39m)
+ [90m 8 |[39m [36mvar[39m _0666 [33m=[39m parseInt([32m'666'[39m[33m,[39m [35m8[39m)
+ [90m 9 |[39m[0m
+
+
+
+Import traces:
+  Client Component Browser:
+    ./node_modules/rimraf/rimraf.js [Client Component Browser]
+    ./node_modules/temp/lib/temp.js [Client Component Browser]
+    ./node_modules/node-latex/index.js [Client Component Browser]
+    ./src/features/cv-generator/latex-template.ts [Client Component Browser]
+    ./src/lib/cv-templates/student.ts [Client Component Browser]
+    ./src/lib/cv-templates/index.ts [Client Component Browser]
+    ./src/app/(dashboard)/templates/page.tsx [Client Component Browser]
+    ./src/app/(dashboard)/templates/page.tsx [Server Component]
+
+  externals-tracing:
+    ./node_modules/rimraf/rimraf.js [externals-tracing]
+    [externals]/rimraf [external]
+    ./node_modules/temp/lib/temp.js [App Route]
+    ./node_modules/node-latex/index.js [App Route]
+    ./src/features/cv-generator/latex-template.ts [App Route]
+    ./src/lib/cv-templates/student.ts [App Route]
+    ./src/lib/cv-templates/index.ts [App Route]
+    ./src/app/api/cv/generate/route.ts [App Route]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./node_modules/temp/lib/temp.js:1:12
+Module not found: Can't resolve 'fs'
+[0m[31m[1m>[22m[39m[90m 1 |[39m [36mvar[39m fs   [33m=[39m require([32m'fs'[39m)[33m,[39m
+ [90m   |[39m            [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 2 |[39m     path [33m=[39m require([32m'path'[39m)[33m,[39m
+ [90m 3 |[39m     cnst [33m=[39m require([32m'constants'[39m)[33m;[39m
+ [90m 4 |[39m[0m
+
+
+
+Import traces:
+  App Route:
+    ./node_modules/temp/lib/temp.js
+    ./node_modules/node-latex/index.js
+    ./src/features/cv-generator/latex-template.ts
+    ./src/lib/cv-templates/student.ts
+    ./src/lib/cv-templates/index.ts
+    ./src/app/api/cv/generate/route.ts
+
+  Client Component Browser:
+    ./node_modules/temp/lib/temp.js [Client Component Browser]
+    ./node_modules/node-latex/index.js [Client Component Browser]
+    ./src/features/cv-generator/latex-template.ts [Client Component Browser]
+    ./src/lib/cv-templates/student.ts [Client Component Browser]
+    ./src/lib/cv-templates/index.ts [Client Component Browser]
+    ./src/app/(dashboard)/templates/page.tsx [Client Component Browser]
+    ./src/app/(dashboard)/templates/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./node_modules/temp/lib/temp.js [Client Component SSR]
+    ./node_modules/node-latex/index.js [Client Component SSR]
+    ./src/features/cv-generator/latex-template.ts [Client Component SSR]
+    ./src/lib/cv-templates/student.ts [Client Component SSR]
+    ./src/lib/cv-templates/index.ts [Client Component SSR]
+    ./src/app/(dashboard)/templates/page.tsx [Client Component SSR]
+    ./src/app/(dashboard)/templates/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)

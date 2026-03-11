@@ -81,6 +81,8 @@ qalm/
 │   ├── lib/                      ← Shared utilities and integrations
 │   │   ├── ai/
 │   │   │   └── client.ts         ← All OpenRouter calls go through here
+│   │   ├── cv-templates/
+│   │   │   └── index.ts          ← Hardcoded CV templates registry
 │   │   ├── github/
 │   │   │   └── client.ts         ← GitHub API wrapper
 │   │   ├── email-providers/

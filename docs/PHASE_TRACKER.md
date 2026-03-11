@@ -96,6 +96,7 @@
 * [x] /dashboard/cv-builder/page.tsx — paste JD → generate → download UI
 * [x] ATS score displayed with color indicator (green/yellow/red)
 * [x] CV_STYLE_REFERENCE.tex added to docs as style reference
+* [x] Hardcoded ATS-optimized CV templates (professional & student)
 
 ---
 

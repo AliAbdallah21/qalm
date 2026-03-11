@@ -65,14 +65,6 @@ export interface ATSBreakdown {
     improvement_tips: string[]
 }
 
-export interface CVTemplate {
-    id: string
-    user_id: string
-    name: string
-    latex_code: string
-    is_active: boolean
-    created_at: string
-}
 
 export interface CVGeneration {
     id: string

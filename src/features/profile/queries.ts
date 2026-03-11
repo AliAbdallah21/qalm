@@ -16,7 +16,7 @@ export async function getFullProfile(userId: string): Promise<FullProfileData> {
     ] = await Promise.all([
         supabase
             .from('profiles')
-            .select('id, user_id, full_name, email, phone, country, city, age, headline, summary, linkedin_url, github_username, avatar_url, created_at, updated_at')
+            .select('id, user_id, full_name, email, phone, country, city, age, headline, summary, linkedin_url, github_username, avatar_url, preferred_template, created_at, updated_at')
             .eq('user_id', userId)
             .single(),
         supabase
@@ -103,7 +103,7 @@ export async function upsertProfile(userId: string, data: Partial<Profile>): Pro
     const { data: updated, error } = await supabase
         .from('profiles')
         .upsert({ user_id: userId, ...data }, { onConflict: 'user_id' })
-        .select('id, user_id, full_name, email, phone, country, city, age, headline, summary, linkedin_url, github_username, avatar_url, created_at, updated_at')
+        .select('id, user_id, full_name, email, phone, country, city, age, headline, summary, linkedin_url, github_username, avatar_url, preferred_template, created_at, updated_at')
         .single()
 
     if (error) throw error
@@ -270,7 +270,7 @@ export async function getProfileByEmail(email: string, client?: SupabaseClient):
     const supabase = client || await createServerClient()
     const { data, error } = await supabase
         .from('profiles')
-        .select('id, user_id, full_name, email, phone, country, city, age, headline, summary, linkedin_url, github_username, avatar_url, created_at, updated_at')
+        .select('id, user_id, full_name, email, phone, country, city, age, headline, summary, linkedin_url, github_username, avatar_url, preferred_template, created_at, updated_at')
         .eq('email', email)
         .maybeSingle()
 

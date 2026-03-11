@@ -12,6 +12,7 @@ export interface Profile {
     linkedin_url: string | null
     github_username: string | null
     avatar_url: string | null
+    preferred_template: string
     created_at: string
     updated_at: string
 }

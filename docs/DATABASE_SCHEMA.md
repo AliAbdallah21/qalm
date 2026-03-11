@@ -29,7 +29,10 @@ headline        text        -- e.g. "AI/ML Engineer | Python | LangChain"
 summary         text        -- professional bio paragraph
 linkedin_url    text
 github_username text
+linkedin_url    text
+github_username text
 avatar_url      text
+preferred_template text DEFAULT 'experienced'
 created_at      timestamptz DEFAULT now()
 updated_at      timestamptz DEFAULT now()
 ```
@@ -125,9 +128,9 @@ last_synced_at  timestamptz DEFAULT now()
 
 ---
 
-## cv_templates
+## cv_templates (Deprecated)
 
-Stores custom user-uploaded LaTeX templates.
+Stores custom user-uploaded LaTeX templates. (Deprecated in favor of hardcoded templates)
 
 ```sql
 id              uuid PRIMARY KEY DEFAULT gen_random_uuid()
@@ -154,7 +157,7 @@ generated_cv    jsonb           -- structured CV data (sections, bullets)
 pdf_url         text            -- Supabase Storage URL
 ats_score       integer         -- 0-100 keyword match score
 model_used      text            -- which AI model generated this
-template_id     uuid REFERENCES cv_templates(id) -- if null, standard template
+template_id     text            -- 'experienced' or 'student'
 category        text DEFAULT 'Other' -- e.g. "Frontend", "Backend", "AI/ML"
 created_at      timestamptz DEFAULT now()
 ```

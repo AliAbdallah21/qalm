@@ -49,8 +49,7 @@ One profile. Infinite tailored applications. Full job hunt visibility.
 - Drafts response emails using AI
 
 ### Phase 4 — Analytics & Intelligence
-- Custom LaTeX CV templates with user upload
-- Template injection system with placeholders
+- Hardcoded ATS-optimized CV templates (professional & student)
 - CV categories (Frontend/Backend/AI-ML etc.)
 - Category filter on job tracker
 - Dashboard: total applications, response rate, interview rate, offer rate

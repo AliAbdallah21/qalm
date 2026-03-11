@@ -38,26 +38,25 @@ export default function CvBuilderPage() {
     const [pdfUrl, setPdfUrl] = useState<string | null>(null)
 
     // Template and Category state
-    const [templates, setTemplates] = useState<any[]>([])
-    const [templateId, setTemplateId] = useState<string>('default')
+    const [templateId, setTemplateId] = useState<string>('experienced')
     const [category, setCategory] = useState<string>('AI/ML')
 
-    const fetchTemplates = async () => {
+    const fetchProfile = async () => {
         try {
-            const res = await fetch('/api/templates')
+            const res = await fetch('/api/profile')
             if (res.ok) {
                 const { data } = await res.json()
-                setTemplates(data || [])
-                const active = data.find((t: any) => t.is_active)
-                if (active) setTemplateId(active.id)
+                if (data?.profile?.preferred_template) {
+                    setTemplateId(data.profile.preferred_template)
+                }
             }
         } catch (e) {
-            console.error('Failed to fetch templates:', e)
+            console.error('Failed to fetch profile:', e)
         }
     }
 
     useEffect(() => {
-        fetchTemplates()
+        fetchProfile()
     }, [])
 
     useEffect(() => {
@@ -353,28 +352,41 @@ export default function CvBuilderPage() {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
+                            <div className="space-y-4 md:col-span-2">
                                 <div className="flex items-center justify-between px-1">
                                     <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted">CV Template</label>
                                     <Link href="/templates" className="text-[10px] font-bold text-accent-blue hover:underline">
-                                        Manage templates →
+                                        View details →
                                     </Link>
                                 </div>
-                                <select
-                                    value={templateId}
-                                    onChange={(e) => setTemplateId(e.target.value)}
-                                    className="w-full bg-surface-hover border border-border-subtle rounded-xl px-4 py-3 text-[var(--text-primary)] focus:border-accent-blue focus:ring-1 focus:ring-accent-blue outline-none transition-all font-bold cursor-pointer"
-                                    disabled={isGenerating}
-                                >
-                                    <option value="default">Default (Built-in)</option>
-                                    {templates.map(t => (
-                                        <option key={t.id} value={t.id}>
-                                            {t.name} {t.is_active ? ' ★ ACTIVE' : ''}
-                                        </option>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {[
+                                        { id: 'experienced', name: 'Professional', desc: 'Experience-first layout' },
+                                        { id: 'student', name: 'Student', desc: 'Education-first layout' }
+                                    ].map(t => (
+                                        <button
+                                            key={t.id}
+                                            type="button"
+                                            onClick={() => setTemplateId(t.id)}
+                                            disabled={isGenerating}
+                                            className={`p-4 rounded-xl border text-left transition-all ${
+                                                templateId === t.id 
+                                                    ? 'border-accent-blue bg-accent-blue/5 shadow-[0_0_15px_rgba(59,130,246,0.1)] ring-1 ring-accent-blue' 
+                                                    : 'border-border-subtle bg-surface-hover hover:border-border-hover'
+                                            }`}
+                                        >
+                                            <div className="flex items-center justify-between mb-1">
+                                                <span className={`text-sm font-black italic tracking-tight ${templateId === t.id ? 'text-accent-blue' : 'text-[var(--text-primary)]'}`}>
+                                                    {t.name}
+                                                </span>
+                                                {templateId === t.id && <CheckCircle size={14} className="text-accent-blue" />}
+                                            </div>
+                                            <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">{t.desc}</span>
+                                        </button>
                                     ))}
-                                </select>
+                                </div>
                             </div>
+                        <div className="space-y-4">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted px-1">Category</label>
                                 <div className="relative">
