@@ -38,6 +38,17 @@ export async function getGmailTokens(userId: string): Promise<GmailTokens | null
     }
 }
 
+export async function deleteGmailTokens(userId: string): Promise<void> {
+    const supabase = await createServerClient()
+
+    const { error } = await supabase
+        .from('gmail_tokens')
+        .delete()
+        .eq('user_id', userId)
+
+    if (error) throw error
+}
+
 export async function updateJobApplicationFromEmail(
     userId: string,
     applicationId: string,

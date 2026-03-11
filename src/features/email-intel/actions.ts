@@ -3,6 +3,14 @@
 import { createServerClient } from '@/lib/supabase/server'
 import * as gmailProvider from '@/lib/email-providers/gmail'
 import * as queries from './queries'
+
+export async function disconnectGmailAction(): Promise<{ success: boolean }> {
+    const supabase = await createServerClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
+    await queries.deleteGmailTokens(user.id)
+    return { success: true }
+}
 import { callAI, parseAIJSON } from '@/lib/ai/client'
 import { buildEmailClassificationPrompt } from '@/lib/ai/prompts'
 import { getApplicationsByUserId } from '@/features/job-tracker/queries'

@@ -1,134 +1,207 @@
 # ✒️ Qalm (قلم)
-### One profile. Infinite tailored applications.
 
+> **One profile. Infinite tailored applications.**
+
+[![Live App](https://img.shields.io/badge/Live%20App-qalm.vercel.app-black?style=flat&logo=vercel)](https://qalm.vercel.app)
+[![Next.js](https://img.shields.io/badge/Next.js-16.1.6-black?style=flat&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-v4-38bdf8?style=flat&logo=tailwindcss)](https://tailwindcss.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ecf8e?style=flat&logo=supabase)](https://supabase.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat&logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-Database-green?style=flat&logo=supabase)](https://supabase.com/)
 
-**Qalm** (Arabic for "pen") is a sophisticated AI-powered career assistant built to eliminate the tedious, repetitive work of job applications. Instead of manually reformatting your CV for every role, Qalm learns your entire professional history once and uses advanced LLMs to generate perfectly tailored, high-impact application materials in seconds.
+**Qalm** (Arabic قلم — "pen") is an AI-powered career assistant. Fill your professional profile once, paste any job description, and receive a tailored, ATS-optimized CV as a downloadable PDF in seconds — compiled by a real LaTeX engine for pixel-perfect output.
 
----
-
-## 🎯 The Problem & Our Vision
-
-Most job seekers spend **40-60% of their "applying time"** simply re-editing their CV to match job descriptions. Even then, they often:
-- Miss critical ATS (Applicant Tracking System) keywords.
-- Fail to highlight their most relevant projects for a specific role.
-- Submit generic cover letters that don't tell a compelling story.
-
-**Qalm's vision** is to provide a "Universal Professional Identity." You manage one rich, deep profile, and Qalm handles the translation of that identity into whatever format a specific employer needs—be it a customized CV, a targeted cover letter, or a project portfolio.
+🔗 **[qalm.vercel.app](https://qalm.vercel.app)**
 
 ---
 
-## 🚀 Phase 2 Features (Current)
+## ✨ Features
 
-Qalm is currently in **Phase 2**, offering a robust suite of tools for the modern job seeker:
-
-### 📄 Intelligent CV Generation
-- **AI Tailoring**: Uses OpenRouter (GPT-4o/Claude 3.5) to rewrite bullet points and reorder skills based on the Job Description (JD).
-- **LaTeX PDF Export**: Generates professional, clean, and consistent PDFs using a refined LaTeX template (banking style).
-- **Strict 1-Page Enforcement**: Intelligent content compression and rule-based generation to ensure your CV stays punchy and readable.
-
-### 📊 ATS Intelligence
-- **Keyword Breakdown**: Visual indicator of matched vs. missing keywords from the JD.
-- **Score Visualizer**: Color-coded ATS compatibility score (0-100%).
-- **Improvement Tips**: AI-generated actionable advice to improve your profile-to-job match.
-
-### 🧩 Data Integration & Import
-- **LinkedIn ZIP Import**: Parse your entire LinkedIn export (Positions, Education, Skills, Certs) in one click.
-- **GitHub Sync**: Connect your GitHub and let AI summarize your repositories into professional project entries.
-
-### 📝 Career Management
-- **Job Application Tracker**: Keep track of every company, role, status, and salary expectation in one place.
-- **Cover Letter Generator**: High-impact letters that tell the story your CV can't, tailored to the specific company's tone.
-- **CV History**: Re-download or review every tailored CV you've ever sent.
+| Feature | Status |
+|---|---|
+| 🤖 AI CV Generation (Claude Sonnet via OpenRouter) | ✅ Live |
+| 📊 ATS Score Breakdown (matched/missing keywords) | ✅ Live |
+| 🐙 GitHub Profile Sync (AI-summarized repos) | ✅ Live |
+| 📋 Job Application Tracker | ✅ Live |
+| 📧 Email Intelligence (Gmail OAuth — auto-detects interviews, rejections, offers) | ✅ Live |
+| 📝 Cover Letter Generation | ✅ Live |
+| 🔗 LinkedIn ZIP Import | ✅ Live |
+| 📈 Analytics Dashboard | 🚧 In Progress |
+| 🌗 Light / Dark Mode | ✅ Live |
+| 📄 PDF Compilation via GitHub Actions + LaTeX | ✅ Live |
 
 ---
 
-## 🏗️ Technical Architecture
-
-Qalm is built with a focus on modularity, type safety, and AI performance.
+## 🏗️ Architecture
 
 ```mermaid
 graph TD
-    User((User)) -->|Next.js App| Frontend[Frontend - React/Tailwind]
-    Frontend -->|Server Actions| Features[Feature Layer - Business Logic]
-    Features -->|Supabase Client| DB[(PostgreSQL - Supabase)]
-    Features -->|OpenRouter Client| AI[AI Layer - GPT-4o/Claude]
-    Features -->|Node-Latex| PDF[PDF Generator - MiKTeX]
-    AI -->|Structured JSON| Features
-    Features -->|Tailored PDF| User
+    User((User)) -->|Next.js App| Frontend[Frontend — React / Tailwind v4]
+    Frontend -->|API Routes| Features[Feature Layer — Business Logic]
+    Features -->|Supabase SSR Client| DB[(PostgreSQL — Supabase)]
+    Features -->|OpenRouter Client| AI[AI Layer — Claude Sonnet / GPT-4o]
+    Features -->|workflow_dispatch| GHA[GitHub Actions — LaTeX PDF Compiler]
+    AI -->|Structured CV JSON| Features
+    GHA -->|Compiled PDF| Storage[Supabase Storage — bucket: cvs]
+    Storage -->|Public URL| User
 ```
-
-- **Frontend**: Next.js 16 (App Router), Tailwind CSS, Lucide Icons.
-- **Backend**: Next.js Server Actions & API Routes (Node.js).
-- **Database**: Supabase PostgreSQL with Row Level Security (RLS) for absolute data privacy.
-- **AI Engine**: OpenRouter integration allows for dynamic model swapping (GPT-4o-mini for speed, Claude 3.5 Sonnet for quality).
-- **Type Safety**: 100% TypeScript with shared interfaces between frontend, backend, and AI prompts.
 
 ---
 
-## 🛠️ Getting Started
+## 🛠️ Tech Stack
 
-### Prerequisites
-- [Node.js 18+](https://nodejs.org/)
-- [MiKTeX](https://miktex.org/) (required for local PDF generation)
-- [Supabase Account](https://supabase.com/)
-- [OpenRouter API Key](https://openrouter.ai/)
+| Layer | Technology | Version |
+|---|---|---|
+| Framework | Next.js App Router | 16.1.6 |
+| Language | TypeScript | 5 |
+| Styling | Tailwind CSS | v4 |
+| Database / Auth / Storage | Supabase (PostgreSQL + RLS) | `@supabase/ssr ^0.9.0` |
+| AI Provider | OpenRouter | — |
+| AI Models | Claude Sonnet 4.5 (`smart`), GPT-4o-mini (`fast`), Claude Opus 4.5 (`best`) | — |
+| PDF Engine | GitHub Actions + TeX Live (`pdflatex`) | — |
+| Payments | Stripe | ^20.4.0 |
+| Icons | Lucide React | ^0.576.0 |
+| Charts | Recharts | ^3.7.0 |
+| Deployment | Vercel | — |
 
-### Installation
+---
 
-1. **Clone the Repo**
-   ```bash
-   git clone https://github.com/AliAbdallah21/qalm.git
-   cd qalm
-   ```
+## 🚀 Getting Started
 
-2. **Install Dependencies**
-   ```bash
-   npm install
-   ```
+### 1. Clone the repo
 
-3. **Configure Environment**
-   Create a `.env.local` file:
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-   NEXT_PUBLIC_GITHUB_CLIENT_ID=your_github_id
-   GITHUB_CLIENT_SECRET=your_github_secret
-   OPENROUTER_API_KEY=your_openrouter_key
-   ```
+```bash
+git clone https://github.com/AliAbdallah21/qalm.git
+cd qalm
+```
 
-4. **Database Migrations**
-   Apply the migrations in `supabase/migrations/` to your Supabase instance to set up the schema and RLS policies.
+### 2. Install dependencies
 
-5. **Start Developing**
-   ```bash
-   npm run dev
-   ```
+```bash
+npm install
+```
+
+### 3. Configure environment variables
+
+```bash
+cp .env.example .env.local
+```
+
+Open `.env.local` and fill in all values. See [Environment Variables](#-environment-variables) below.
+
+### 4. Apply database migrations
+
+In your [Supabase dashboard](https://supabase.com/dashboard), open the SQL editor and run each file in order from `supabase/migrations/`:
+
+```
+001_initial_schema.sql
+002_add_languages.sql
+003_add_cover_letters.sql
+004_add_ats_breakdown.sql
+005_add_gmail_tokens.sql
+006_add_analytics_reports.sql
+007_add_pdf_compilation_fields.sql
+```
+
+### 5. Configure GitHub repository secrets
+
+The PDF compilation runs via GitHub Actions. In your forked repo settings (**Settings → Secrets and variables → Actions**), add:
+
+| Secret | Value |
+|---|---|
+| `SUPABASE_URL` | Your Supabase project URL |
+| `SUPABASE_SERVICE_KEY` | Your Supabase service role key |
+
+### 6. Start the dev server
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+---
+
+## 🔐 Environment Variables
+
+Copy `.env.example` to `.env.local` and fill in each value:
+
+| Variable | Required | Description |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | ✅ | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ | Supabase anon (public) key |
+| `SUPABASE_SERVICE_ROLE_KEY` | ✅ | Supabase service role key (server-only) |
+| `DATABASE_URL` | Optional | Direct PostgreSQL connection string |
+| `GITHUB_CLIENT_ID` | ✅ | GitHub OAuth App client ID |
+| `GITHUB_CLIENT_SECRET` | ✅ | GitHub OAuth App client secret |
+| `GITHUB_ACTIONS_TOKEN` | ✅ | GitHub PAT with `workflow` scope (for PDF dispatch) |
+| `GITHUB_PAT` | ✅ | GitHub Personal Access Token |
+| `GITHUB_REPO_OWNER` | ✅ | Your GitHub username |
+| `GITHUB_REPO_NAME` | ✅ | Repository name (e.g. `qalm`) |
+| `OPENROUTER_API_KEY` | ✅ | OpenRouter API key |
+| `NEXT_PUBLIC_APP_URL` | ✅ | App base URL (`http://localhost:3000` locally) |
+| `GOOGLE_CLIENT_ID` | Phase 3 | Google OAuth client ID (Gmail integration) |
+| `GOOGLE_CLIENT_SECRET` | Phase 3 | Google OAuth client secret |
+| `GOOGLE_REDIRECT_URI` | Phase 3 | Google OAuth redirect URI |
+| `STRIPE_SECRET_KEY` | Phase 4 | Stripe secret key |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Phase 4 | Stripe publishable key |
+| `STRIPE_PRO_PRICE_ID` | Phase 4 | Stripe Price ID for the Pro plan |
+| `STRIPE_WEBHOOK_SECRET` | Phase 4 | Stripe webhook signing secret |
+
+---
+
+## 📁 Project Structure
+
+```
+src/
+├── app/
+│   ├── (auth)/          # Public routes: login, signup
+│   ├── (dashboard)/     # Protected routes: all dashboard pages
+│   └── api/             # API route handlers
+├── features/            # Business logic — one folder per feature
+│   ├── cv-generator/    # types, queries, actions
+│   ├── profile/
+│   ├── github/
+│   ├── job-tracker/
+│   ├── email-intel/
+│   ├── cover-letter/
+│   ├── analytics/
+│   └── subscriptions/
+├── lib/
+│   ├── ai/              # OpenRouter client + prompt constants
+│   ├── supabase/        # Server & browser Supabase clients
+│   ├── access/          # canUserAccess() — feature/tier gate
+│   ├── github/          # GitHub API wrapper
+│   └── email-providers/ # Gmail provider implementation
+└── components/          # Shared UI components
+supabase/
+└── migrations/          # SQL migration files (schema as code)
+.github/
+└── workflows/
+    └── compile-pdf.yml  # LaTeX PDF compilation pipeline
+```
+
+---
+
+## 🗺️ Roadmap
+
+- **Phase 1** ✅ — Core MVP: profile, GitHub sync, AI CV generation, PDF download
+- **Phase 2** ✅ — LinkedIn import, cover letter, job tracker, ATS breakdown
+- **Phase 3** ✅ — Gmail integration: auto-classify emails, update job tracker
+- **Phase 4** 🚧 — Analytics dashboard, skill gap analysis, Stripe Pro tier
+
+---
+
+## 📬 Author
+
+**Ali Abdallah** — AI/ML Engineer & Full-Stack Developer
+
+- 📧 [aliabdalla2110@gmail.com](mailto:aliabdalla2110@gmail.com)
+- 💼 [linkedin.com/in/ali-abdallah-b5ba792b6](https://www.linkedin.com/in/ali-abdallah-b5ba792b6/)
+- 🐙 [github.com/AliAbdallah21](https://github.com/AliAbdallah21)
 
 ---
 
 ## 🛡️ License
 
-Distributed under the MIT License. See `LICENSE` for more information.
-
----
-
-## 📬 Contact & Connect
-
-**Ali Abdallah** - AI/ML Engineer & Full-Stack Developer
-
-- **Email**: [aliabdalla2110@gmail.com](mailto:aliabdalla2110@gmail.com)
-- **LinkedIn**: [linkedin.com/in/ali-abdallah-b5ba792b6/](https://www.linkedin.com/in/ali-abdallah-b5ba792b6/)
-- **GitHub**: [github.com/AliAbdallah21](https://github.com/AliAbdallah21)
-
-Project Link: [https://github.com/AliAbdallah21/qalm](https://github.com/AliAbdallah21/qalm)
-
----
-
-### 🌟 Roadmap
-- **Phase 3**: Gmail integration for auto-tracking of application status via AI email scanning.
-- **Phase 4**: Advanced career analytics and skill gap analysis tool.
+Distributed under the MIT License.

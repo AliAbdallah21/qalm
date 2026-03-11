@@ -1,15 +1,32 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Mail, RefreshCw, LogOut, CheckCircle, Clock, AlertCircle, ArrowLeft, Zap, ShieldCheck, MailSearch, Sparkles, Loader2 } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { Mail, RefreshCw, LogOut, Clock, ArrowLeft, Zap, ShieldCheck, MailSearch, Sparkles, Loader2, CheckCircle, XCircle } from 'lucide-react'
 import Link from 'next/link'
+import type { GmailTokens, EmailScanResult } from '@/features/email-intel/types'
+
+interface Notification {
+    message: string
+    type: 'success' | 'error'
+}
+
+interface UserLimits {
+    tier: string
+}
 
 export default function EmailsPage() {
-    const [tokens, setTokens] = useState<any>(null)
+    const [tokens, setTokens] = useState<GmailTokens & { email?: string } | null>(null)
     const [loading, setLoading] = useState(true)
     const [syncing, setSyncing] = useState(false)
-    const [scanResult, setScanResult] = useState<any>(null)
-    const [limits, setLimits] = useState<any>(null)
+    const [disconnecting, setDisconnecting] = useState(false)
+    const [scanResult, setScanResult] = useState<EmailScanResult | null>(null)
+    const [limits, setLimits] = useState<UserLimits | null>(null)
+    const [notification, setNotification] = useState<Notification | null>(null)
+
+    const showNotification = useCallback((message: string, type: 'success' | 'error') => {
+        setNotification({ message, type })
+        setTimeout(() => setNotification(null), 3500)
+    }, [])
 
     useEffect(() => {
         async function loadData() {
@@ -38,7 +55,7 @@ export default function EmailsPage() {
     }, [])
 
     const handleConnect = async () => {
-        if (limits?.tier === 'free') return;
+        if (limits?.tier === 'free') return
         const res = await fetch('/api/emails/connect/gmail')
         if (res.ok) {
             const { url } = await res.json()
@@ -61,6 +78,25 @@ export default function EmailsPage() {
         }
     }
 
+    const handleDisconnect = async () => {
+        setDisconnecting(true)
+        try {
+            const res = await fetch('/api/emails/disconnect', { method: 'DELETE' })
+            if (res.ok) {
+                setTokens(null)
+                setScanResult(null)
+                showNotification('Gmail disconnected successfully', 'success')
+            } else {
+                showNotification('Failed to disconnect Gmail. Please try again.', 'error')
+            }
+        } catch (error) {
+            console.error('Disconnect failed', error)
+            showNotification('Failed to disconnect Gmail. Please try again.', 'error')
+        } finally {
+            setDisconnecting(false)
+        }
+    }
+
     if (loading) return (
         <div className="p-8 flex items-center justify-center min-h-[400px]">
             <Loader2 className="w-8 h-8 animate-spin text-accent-blue" />
@@ -72,6 +108,21 @@ export default function EmailsPage() {
 
         return (
             <div className="p-8 max-w-4xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                {/* Notification Banner */}
+                {notification && (
+                    <div className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl border text-sm font-bold transition-all animate-in fade-in slide-in-from-top-2 duration-300 ${
+                        notification.type === 'success'
+                            ? 'bg-success/10 border-success/30 text-success'
+                            : 'bg-danger/10 border-danger/30 text-danger'
+                    }`}>
+                        {notification.type === 'success'
+                            ? <CheckCircle size={18} />
+                            : <XCircle size={18} />
+                        }
+                        {notification.message}
+                    </div>
+                )}
+
                 <div className="flex items-center justify-between">
                     <Link href="/dashboard" className="group flex items-center gap-3 text-xs font-black uppercase tracking-[0.2em] text-text-muted hover:text-[var(--text-primary)] transition-all">
                         <div className="p-2 rounded-lg bg-surface-card border border-border-subtle group-hover:border-accent-blue/30 transition-all">
@@ -82,7 +133,6 @@ export default function EmailsPage() {
                 </div>
 
                 <div className="relative p-12 bg-[var(--bg-surface)] border border-[var(--border)] rounded-[3rem] overflow-hidden group">
-                    {/* Background glow */}
                     <div className="absolute top-0 right-0 w-96 h-96 bg-accent-blue/5 blur-[100px] -mr-48 -mt-48 transition-all group-hover:bg-accent-blue/10" />
 
                     <div className="relative z-10 flex flex-col items-center text-center max-w-2xl mx-auto">
@@ -153,6 +203,21 @@ export default function EmailsPage() {
 
     return (
         <div className="p-8 max-w-6xl mx-auto space-y-10 animate-in fade-in duration-700">
+            {/* Notification Banner */}
+            {notification && (
+                <div className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl border text-sm font-bold transition-all animate-in fade-in slide-in-from-top-2 duration-300 ${
+                    notification.type === 'success'
+                        ? 'bg-success/10 border-success/30 text-success'
+                        : 'bg-danger/10 border-danger/30 text-danger'
+                }`}>
+                    {notification.type === 'success'
+                        ? <CheckCircle size={18} />
+                        : <XCircle size={18} />
+                    }
+                    {notification.message}
+                </div>
+            )}
+
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
@@ -167,11 +232,15 @@ export default function EmailsPage() {
                 </div>
                 <div className="flex items-center gap-4">
                     <button
-                        onClick={() => {/* disconnect logic */ }}
-                        className="px-6 py-3 border border-[var(--border)] rounded-2xl text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-widest hover:text-[var(--text-primary)] hover:border-danger/30 hover:bg-danger/5 transition-all flex items-center gap-2"
+                        onClick={handleDisconnect}
+                        disabled={disconnecting}
+                        className="px-6 py-3 border border-[var(--border)] rounded-2xl text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-widest hover:text-[var(--text-primary)] hover:border-danger/30 hover:bg-danger/5 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        <LogOut size={16} />
-                        Disconnect
+                        {disconnecting
+                            ? <Loader2 size={16} className="animate-spin" />
+                            : <LogOut size={16} />
+                        }
+                        {disconnecting ? 'Disconnecting...' : 'Disconnect'}
                     </button>
                     <button
                         onClick={handleSync}
@@ -189,7 +258,7 @@ export default function EmailsPage() {
                 <div className="bg-[var(--bg-surface)] p-8 rounded-[2rem] border border-[var(--border)] group hover:border-accent-blue/30 transition-all">
                     <p className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-4">Total Packets Scanned</p>
                     <div className="flex items-baseline gap-2">
-                        <p className="text-4xl font-black text-[var(--text-primary)] italic">{scanResult?.scanned || 0}</p>
+                        <p className="text-4xl font-black text-[var(--text-primary)] italic">{scanResult?.scanned ?? 0}</p>
                         <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">Inboxes</span>
                     </div>
                 </div>
@@ -199,7 +268,7 @@ export default function EmailsPage() {
                     </div>
                     <p className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-4">Neural Updates Generated</p>
                     <div className="flex items-baseline gap-2">
-                        <p className="text-4xl font-black text-success italic">+{scanResult?.updated || 0}</p>
+                        <p className="text-4xl font-black text-success italic">+{scanResult?.updated ?? 0}</p>
                         <span className="text-xs font-bold text-success uppercase tracking-widest">Modified</span>
                     </div>
                 </div>
@@ -237,7 +306,7 @@ export default function EmailsPage() {
                             </div>
                         </div>
                     ) : (
-                        scanResult.results.map((res: any, i: number) => (
+                        scanResult.results.map((res, i) => (
                             <div key={i} className="p-8 flex items-center justify-between hover:bg-white/[0.02] transition-colors group">
                                 <div className="flex items-center gap-6">
                                     <div className="p-4 bg-[var(--bg-primary)] group-hover:bg-[var(--bg-surface-hover)] border border-[var(--border)] rounded-2xl transition-all">
@@ -249,14 +318,17 @@ export default function EmailsPage() {
                                     </div>
                                 </div>
                                 <div className="text-right space-y-3">
-                                    <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.1em] italic ${res.classification === 'interview_invite' ? 'bg-accent-blue/10 text-accent-blue border border-accent-blue/20' :
+                                    <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.1em] italic ${
+                                        res.classification === 'interview_invite' ? 'bg-accent-blue/10 text-accent-blue border border-accent-blue/20' :
                                         res.classification === 'offer' ? 'bg-success/10 text-success border border-success/20' :
-                                            res.classification === 'rejection' ? 'bg-danger/10 text-danger border border-danger/20' :
-                                                'bg-surface-main text-text-secondary border border-border-subtle'
-                                        }`}>
+                                        res.classification === 'rejection' ? 'bg-danger/10 text-danger border border-danger/20' :
+                                        'bg-surface-main text-text-secondary border border-border-subtle'
+                                    }`}>
                                         {res.classification.replace('_', ' ')}
                                     </span>
-                                    <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">{new Date(res.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                                    <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">
+                                        {new Date(res.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                    </p>
                                 </div>
                             </div>
                         ))

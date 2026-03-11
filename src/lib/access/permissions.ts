@@ -26,7 +26,7 @@ export const ENABLED_FEATURES = new Set([
 
 export const TIER_FEATURES: Record<SubscriptionTier, PlanFeatures> = {
     free: {
-        cv_generations_per_month: 5,
+        cv_generations_per_month: 999,
         cover_letters: false,
         email_sync: false,
         ats_breakdown: false,
