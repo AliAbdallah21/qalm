@@ -73,3 +73,4 @@ One profile. Infinite tailored applications. Full job hunt visibility.
 3. Modular by design — adding features never breaks existing ones
 4. Free first — monetization layer added without changing feature code
 5. AI does the heavy lifting — user provides data, AI does the work
+6. Guaranteed Accuracy — critical data like project names and cert descriptions use post-AI injection to prevent hallucinations
