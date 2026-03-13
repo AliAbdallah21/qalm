@@ -6,7 +6,7 @@ Feature flags control what is enabled, disabled, or coming soon. Before building
 
 The `canUserAccess()` function in `src/lib/access/permissions.ts` is the single place that enforces these flags at runtime. Never check phase or tier anywhere else in the codebase.
 
-**Current Phase:** Phase 2
+**Current Phase:** Phase 4
 
 ---
 
@@ -38,7 +38,7 @@ The `canUserAccess()` function in `src/lib/access/permissions.ts` is the single 
 | email_scan             | Auto-scan Job Emails         | 3     | 🔒 DISABLED | free          |
 | email_classify         | AI Email Classification      | 3     | 🔒 DISABLED | free          |
 | email_drafts           | AI Draft Email Replies       | 3     | 🔒 DISABLED | pro           |
-| analytics_basic        | Basic Application Stats      | 4     | 🔒 DISABLED | free          |
+| analytics_basic        | Basic Application Stats      | 4     | ✅ ENABLED   | free          |
 | analytics_salary       | Salary Expectations Data     | 4     | 🔒 DISABLED | pro           |
 | analytics_skill_gap    | Skill Gap Analysis           | 4     | 🔒 DISABLED | pro           |
 | analytics_patterns     | Application Pattern Insights | 4     | 🔒 DISABLED | pro           |

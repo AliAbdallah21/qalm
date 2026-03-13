@@ -54,21 +54,57 @@ export async function buildJobSearchSnapshot(userId: string): Promise<JobSearchS
     const scores = cvGenerations.map(c => c.ats_score).filter((s): s is number => s !== null && s !== undefined)
     const avg_ats_score = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0
 
-    // Extract industry from company names (naive extraction for now)
+    // Extract industry from company names (improved detection)
     const industries: Record<string, number> = {}
     const industryResponses: Record<string, number> = {}
 
-    const techKeywords = ['tech', 'software', 'ai', 'ml', 'fintech', 'health', 'crypto', 'saas', 'data']
+    const industryMap: Record<string, string> = {
+        // Tech
+        'google': 'Tech', 'microsoft': 'Tech', 'amazon': 'Tech',
+        'apple': 'Tech', 'meta': 'Tech', 'netflix': 'Tech',
+        'uber': 'Tech', 'airbnb': 'Tech', 'spotify': 'Tech',
+        'twitter': 'Tech', 'x.com': 'Tech', 'openai': 'Tech',
+        'anthropic': 'Tech', 'nvidia': 'Tech', 'intel': 'Tech',
+        'oracle': 'Tech', 'sap': 'Tech', 'salesforce': 'Tech',
+        'adobe': 'Tech', 'atlassian': 'Tech', 'github': 'Tech',
+        // Telecom
+        'vodafone': 'Telecom', 'orange': 'Telecom', 'etisalat': 'Telecom',
+        'we': 'Telecom', 'telecom': 'Telecom',
+        // Finance
+        'hsbc': 'Finance', 'barclays': 'Finance', 'jpmorgan': 'Finance',
+        'goldman': 'Finance', 'cib': 'Finance', 'nbe': 'Finance',
+        'banque': 'Finance', 'bank': 'Finance', 'fawry': 'Fintech',
+        'paymob': 'Fintech', 'stripe': 'Fintech', 'paypal': 'Fintech',
+        // Consulting
+        'mckinsey': 'Consulting', 'deloitte': 'Consulting',
+        'accenture': 'Consulting', 'pwc': 'Consulting', 'kpmg': 'Consulting',
+        // E-commerce
+        'noon': 'E-commerce', 'jumia': 'E-commerce',
+        'talabat': 'E-commerce', 'instashop': 'E-commerce',
+        // Keywords fallback
+        'tech': 'Tech', 'software': 'Tech', 'ai': 'Tech', 'ml': 'Tech',
+        'data': 'Tech', 'fintech': 'Fintech', 'health': 'Healthcare',
+        'pharma': 'Healthcare', 'hospital': 'Healthcare', 'clinic': 'Healthcare',
+        'crypto': 'Crypto', 'saas': 'Tech', 'cloud': 'Tech',
+        'media': 'Media', 'news': 'Media', 'game': 'Gaming',
+        'logistic': 'Logistics', 'transport': 'Logistics', 'delivery': 'Logistics'
+    }
+
+    function detectIndustry(companyName: string): string {
+        const lower = companyName.toLowerCase()
+        // Check exact company name match first
+        for (const [key, industry] of Object.entries(industryMap)) {
+            if (lower === key || lower.startsWith(key)) return industry
+        }
+        // Fallback to keyword contains match
+        for (const [key, industry] of Object.entries(industryMap)) {
+            if (lower.includes(key)) return industry
+        }
+        return 'Other'
+    }
 
     apps.forEach(app => {
-        let foundIndustry = 'Other'
-        const companyLower = app.company.toLowerCase()
-        for (const kw of techKeywords) {
-            if (companyLower.includes(kw)) {
-                foundIndustry = kw.toUpperCase()
-                break
-            }
-        }
+        const foundIndustry = detectIndustry(app.company)
         industries[foundIndustry] = (industries[foundIndustry] || 0) + 1
         if (app.status === 'interview' || app.status === 'offer') {
             industryResponses[foundIndustry] = (industryResponses[foundIndustry] || 0) + 1

@@ -1,6 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server'
 import type { ApplicationStats, WeeklyActivity, TopSkill, MissingKeyword } from './types'
 import { AI_ML_KEYWORDS, SOFTWARE_ENGINEERING_KEYWORDS } from './constants'
+import { searchJobs } from '@/lib/jsearch/client'
 
 export async function getApplicationStats(userId: string): Promise<ApplicationStats> {
     const supabase = await createServerClient()
@@ -103,7 +104,7 @@ export async function getTopSkillsFromProfile(userId: string): Promise<TopSkill[
     const supabase = await createServerClient()
     const { data, error } = await supabase
         .from('skills')
-        .select('name, category')
+        .select('name, category, level, years_experience')
         .eq('user_id', userId)
 
     if (error || !data) return []
@@ -136,11 +137,23 @@ export async function getTopSkillsFromProfile(userId: string): Promise<TopSkill[
         filtered = prioritized.filter(s => s.priority !== 3)
     }
 
-    return filtered.slice(0, 10).map(s => ({
-        name: s.name,
-        count: 1,
-        category: s.category
-    }))
+    return filtered.slice(0, 10).map(s => {
+        // Calculate count based on years or level
+        let count = s.years_experience || 0
+        if (count <= 0) {
+            const level = s.level?.toLowerCase() || ''
+            if (level === 'expert') count = 5
+            else if (level === 'intermediate') count = 3
+            else if (level === 'beginner') count = 1
+            else count = 1
+        }
+
+        return {
+            name: s.name,
+            count,
+            category: s.category
+        }
+    })
 }
 
 export async function getMissingKeywordsFrequency(userId: string): Promise<MissingKeyword[]> {
@@ -167,4 +180,56 @@ export async function getMissingKeywordsFrequency(userId: string): Promise<Missi
         .map(([keyword, count]) => ({ keyword, frequency: count }))
         .sort((a, b) => b.frequency - a.frequency)
         .slice(0, 10)
+}
+
+export async function getMarketKeywordFrequency(
+    targetRole: string
+): Promise<MissingKeyword[]> {
+    try {
+        // Fetch 2 pages of jobs (20 postings) for the target role
+        const [page1, page2] = await Promise.all([
+            searchJobs(targetRole, { page: 1, numPages: 1, datePosted: 'month' }),
+            searchJobs(targetRole, { page: 2, numPages: 1, datePosted: 'month' })
+        ])
+        const jobs = [...page1, ...page2]
+
+        if (jobs.length === 0) return []
+
+        // Extract all text from job descriptions and qualifications
+        const keywordCounts: Record<string, number> = {}
+
+        const techKeywords = [
+            'python', 'javascript', 'typescript', 'react', 'node', 'sql',
+            'postgresql', 'mongodb', 'redis', 'docker', 'kubernetes', 'aws',
+            'gcp', 'azure', 'git', 'ci/cd', 'tensorflow', 'pytorch', 'pandas',
+            'numpy', 'fastapi', 'django', 'nextjs', 'graphql', 'rest', 'api',
+            'machine learning', 'deep learning', 'nlp', 'llm', 'data science',
+            'mlops', 'airflow', 'spark', 'kafka', 'elasticsearch', 'linux',
+            'agile', 'scrum', 'java', 'golang', 'rust', 'c++', 'flutter',
+            'react native', 'vue', 'angular', 'tailwind', 'figma'
+        ]
+
+        jobs.forEach(job => {
+            const text = [
+                job.job_description ?? '',
+                ...(job.job_required_skills ?? []),
+                ...(job.job_highlights?.Qualifications ?? []),
+                ...(job.job_highlights?.Responsibilities ?? [])
+            ].join(' ').toLowerCase()
+
+            techKeywords.forEach(keyword => {
+                if (text.includes(keyword)) {
+                    keywordCounts[keyword] = (keywordCounts[keyword] ?? 0) + 1
+                }
+            })
+        })
+
+        return Object.entries(keywordCounts)
+            .map(([keyword, count]) => ({ keyword, frequency: count }))
+            .sort((a, b) => b.frequency - a.frequency)
+            .slice(0, 15)
+    } catch (error) {
+        console.error('[JSearch] getMarketKeywordFrequency failed:', error)
+        return []
+    }
 }

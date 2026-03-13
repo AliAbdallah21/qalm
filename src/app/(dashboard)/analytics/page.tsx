@@ -452,7 +452,8 @@ export default function AnalyticsPage() {
 
                     <div className="bg-bg-surface border border-border-default rounded-[2.5rem] p-10 flex flex-col overflow-hidden">
                         <div className="mb-8">
-                            <h2 className="text-xl font-black text-text-main italic tracking-tight mb-1">Market Requirement Frequency</h2>
+                            <h2 className="text-xl font-black text-text-main italic tracking-tight mb-1">Your CV Keyword Frequency</h2>
+                            <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 italic">Based on real job postings for your target role</p>
                             <p className="text-[10px] font-black text-accent-blue uppercase tracking-[0.2em]">Highest impact keywords found in your funnel</p>
                         </div>
 

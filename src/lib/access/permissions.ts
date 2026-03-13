@@ -22,6 +22,7 @@ export const ENABLED_FEATURES = new Set([
     'cover_letter',
     'ats_breakdown',
     'gmail_integration',
+    'analytics_basic',
 ])
 
 export const TIER_FEATURES: Record<SubscriptionTier, PlanFeatures> = {

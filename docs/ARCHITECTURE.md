@@ -12,6 +12,7 @@
 | AI | OpenRouter | Single integration, swap models freely |
 | Deployment | Vercel | Push to GitHub = live instantly |
 | Email Sending | Resend (Phase 2+) | Transactional emails |
+| Job Search API | JSearch (RapidAPI) | Real-time job market data |
 | Styling | Tailwind CSS | Utility-first, fast |
 
 ---

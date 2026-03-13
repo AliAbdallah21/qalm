@@ -1,6 +1,6 @@
 # Qalm — Phase Tracker
 
-**Current Status:** Phase 2 — In Progress
+**Current Status:** Phase 4 — Analytics & Intelligence
 
 ---
 
@@ -249,11 +249,12 @@
 ## Tasks
 
 * [x] Analytics dashboard — applications, response rate, offer rate
-* [/] AI Intelligence Report — Top of analytics page with insights
+* [x] AI Intelligence Report — Top of analytics page with insights
 * [ ] Salary expectations data integration
 * [ ] Skill gap analysis
 * [x] Stripe integration — user_subscriptions table already exists
 * [x] Pro tier feature gating via canUserAccess()
+* [x] Real market data integration via JSearch API
 * [ ] Outlook email provider (lib/email-providers/outlook.ts)
 * [x] Enable feature flags for all Phase 4 features
 
