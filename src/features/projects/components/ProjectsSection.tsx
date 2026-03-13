@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { FolderGit2, Plus, Trash2, Check, ExternalLink, Loader2, ChevronUp, Star, Github } from 'lucide-react'
 import type { Project } from '@/features/projects/types'
 import type { GithubRepo } from '@/features/github/types'
@@ -47,7 +47,16 @@ export default function ProjectsSection({ projects, githubRepos, onUpdate, loadi
     const [editingId, setEditingId] = useState<string | null>(null)
     const [tempData, setTempData] = useState<Partial<Project>>({})
     const [techInput, setTechInput] = useState('')
-    const [heroError, setHeroError] = useState<string | null>(null)
+    const [linkedRepoIds, setLinkedRepoIds] = useState<Set<string>>(new Set())
+
+    useEffect(() => {
+        const ids = new Set(projects.map(p => p.github_repo_id).filter(Boolean) as string[])
+        setLinkedRepoIds(ids)
+    }, [projects])
+
+    const availableRepos = useMemo(() => 
+        githubRepos.filter(repo => !linkedRepoIds.has(repo.id)),
+    [githubRepos, linkedRepoIds])
 
     const heroProjects = projects.filter(p => p.is_hero)
     const otherProjects = projects.filter(p => !p.is_hero)
@@ -107,8 +116,7 @@ export default function ProjectsSection({ projects, githubRepos, onUpdate, loadi
 
     const handleToggleHero = async (project: Project) => {
         if (!project.is_hero && heroProjects.length >= 4) {
-            setHeroError('Maximum 4 hero projects. Remove one first.')
-            setTimeout(() => setHeroError(null), 3000)
+            showNotification('Maximum 4 hero projects allowed. Remove one first.', 'error')
             return
         }
 
@@ -222,12 +230,6 @@ export default function ProjectsSection({ projects, githubRepos, onUpdate, loadi
     return (
         <Section title="Projects Showcase" icon={FolderGit2}>
             <div className="space-y-8">
-                {heroError && (
-                    <div className="p-4 bg-warning/10 border border-warning/20 rounded-xl text-warning text-sm font-bold flex items-center gap-2">
-                        <Star size={16} />
-                        {heroError}
-                    </div>
-                )}
 
                 {heroProjects.length > 0 && (
                     <div className="space-y-4">
@@ -269,22 +271,29 @@ export default function ProjectsSection({ projects, githubRepos, onUpdate, loadi
                             </div>
                         </div>
 
-                        {!editingId && githubRepos.length > 0 && (
+                        {!editingId && (
                             <div className="p-5 bg-white/5 border border-white/10 rounded-2xl space-y-4">
                                 <div className="flex items-center gap-3 text-sm font-bold text-text-secondary">
                                     <Github size={18} />
                                     Promote from GitHub
                                 </div>
-                                <select 
-                                    className="w-full px-5 py-3 bg-surface-main border border-border-subtle rounded-xl text-sm outline-none [color-scheme:dark]"
-                                    onChange={e => handlePromoteRepo(e.target.value)}
-                                    defaultValue=""
-                                >
-                                    <option value="" disabled>Select a repository to import details...</option>
-                                    {githubRepos.map(repo => (
-                                        <option key={repo.id} value={repo.id}>{repo.full_name}</option>
-                                    ))}
-                                </select>
+                                {availableRepos.length > 0 ? (
+                                    <select 
+                                        className="w-full px-5 py-3 bg-surface-main border border-border-subtle rounded-xl text-sm outline-none [color-scheme:dark]"
+                                        onChange={e => handlePromoteRepo(e.target.value)}
+                                        defaultValue=""
+                                    >
+                                        <option value="" disabled>Select a repository to import details...</option>
+                                        {availableRepos.map(repo => (
+                                            <option key={repo.id} value={repo.id}>{repo.full_name}</option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <div className="flex items-center gap-2 p-3 bg-accent-blue/5 border border-accent-blue/10 rounded-xl text-xs font-black text-accent-blue uppercase tracking-widest">
+                                        <Check size={14} />
+                                        All repositories have been promoted
+                                    </div>
+                                )}
                             </div>
                         )}
 

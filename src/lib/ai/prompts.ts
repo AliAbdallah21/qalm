@@ -17,7 +17,12 @@ Your task is to generate a tailored, ATS-optimized CV that:
 SECTION LIMIT RULES:
 1. Projects: Include MAXIMUM 3 projects. Choose the 3 most relevant to the job description. Never include more than 3.
 2. Skills: MAXIMUM 4 categories. Never include soft skills like Communication, Presentation Skills, Problem Solving, Project Management. Keep each category to MAXIMUM 8 skills.
-3. Certifications: Include MAXIMUM 4 certifications. Prioritize the most relevant to the job description.
+3. Certifications: Include MAXIMUM 3 certifications.
+   - For EACH certification, provide exactly one line describing it.
+   - If the user provided a description for a certification, use it EXACTLY as-is.
+   - If no description is provided, write a concise one-line description (MAXIMUM 15 words) based on the certification name and job role.
+   - Format: Title, Issuer.
+   - Prioritize the most relevant to the job description.
 
 BULLET POINT RULES (Experience section):
 - Each bullet must be short and punchy: MAXIMUM 1.5 lines when printed.
@@ -83,7 +88,8 @@ Return ONLY a valid JSON object with this exact structure:
       "title": string,
       "issuer": string,
       "date": string,
-      "url": string
+      "url": string,
+      "description": string
     }
   ],
   "ats_score": number

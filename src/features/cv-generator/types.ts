@@ -42,6 +42,7 @@ export interface CVCertificate {
     issuer: string
     date: string
     url: string
+    description?: string
 }
 
 export interface StructuredCV {

@@ -26,7 +26,7 @@ jobs:
       - name: Fetch LaTeX source
         run: |
           curl -sv \
-            "${{ secrets.SUPABASE_URL }}/rest/v1/cv_generations?id=eq.${{ inputs.cv_id }}&select=latex_source,user_id" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/cv_generations?id=eq.${{ inputs.cv_id }}&select=latex_source,user_id,job_title,company_name" \
             -H "apikey: ${{ secrets.SUPABASE_SERVICE_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_KEY }}" \
             -o response.json
@@ -37,14 +37,44 @@ jobs:
           echo "CV ID is: ${{ inputs.cv_id }}"
           python3 << 'PYEOF'
           import json
+          import re
+          import time
+
+          def sanitize(text):
+              if not text:
+                  return ""
+              # Lowercase
+              text = text.lower()
+              # Replace spaces with underscores
+              text = text.replace(" ", "_")
+              # Remove special characters except underscores and hyphens
+              text = re.sub(r'[^a-z0-9_-]', '', text)
+              # Clean up multiple underscores
+              text = re.sub(r'_+', '_', text)
+              return text.strip('_')
+
           with open('response.json') as f:
               data = json.load(f)
+          
+          item = data[0]
           with open('document.tex', 'w') as f:
-              f.write(data[0]['latex_source'])
+              f.write(item['latex_source'])
           with open('user_id.txt', 'w') as f:
-              f.write(data[0]['user_id'])
-          print('Fetched successfully')
-          print(f'LaTeX length: {len(data[0]["latex_source"])}')
+              f.write(item['user_id'])
+          
+          job_title = sanitize(item.get('job_title', 'cv'))
+          company_name = sanitize(item.get('company_name', ''))
+          timestamp = int(time.time() * 1000)
+          
+          if company_name:
+              filename = f"{job_title}_{company_name}_{timestamp}.pdf"
+          else:
+              filename = f"{job_title}_{timestamp}.pdf"
+              
+          with open('filename.txt', 'w') as f:
+              f.write(filename)
+
+          print(f'Fetched successfully. Generated filename: {filename}')
           PYEOF
 
       - name: Set status to compiling
@@ -67,7 +97,8 @@ jobs:
         if: steps.compile.outcome == 'success'
         run: |
           USER_ID=$(cat user_id.txt)
-          STORAGE_PATH="${USER_ID}/${{ inputs.cv_id }}.pdf"
+          FILENAME=$(cat filename.txt)
+          STORAGE_PATH="${USER_ID}/${FILENAME}"
           curl -s -X POST \
             "${{ secrets.SUPABASE_URL }}/storage/v1/object/cvs/${STORAGE_PATH}" \
             -H "apikey: ${{ secrets.SUPABASE_SERVICE_KEY }}" \

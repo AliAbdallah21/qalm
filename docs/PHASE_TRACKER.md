@@ -191,8 +191,12 @@
 * [x] CV Builder: Featured Projects & Certifications selection UI
 * [x] CV Builder: Optional custom descriptions for forced projects
 * [x] CV Builder: Toggles for "Let AI pick additional" projects/certs
+* [x] CV Builder: Auto-disable AI toggles when 3+ items selected
+* [x] Profile: Language selection dropdown with duplicate prevention
+* [x] Projects: Filter already promoted repos from GitHub dropdown
 * [x] API Update: /api/cv/generate accepts forced IDs and descriptions
 * [x] Prompt Update: buildCVGenerationPrompt incorporates forced/hero context
+* [x] Logic Update: Post-AI placeholder replacement for guaranteed data accuracy
 
 ---
 

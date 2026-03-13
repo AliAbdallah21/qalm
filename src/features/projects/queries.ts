@@ -76,7 +76,7 @@ export async function toggleProjectHero(id: string, isHero: boolean): Promise<vo
             
         if (countError) throw new Error(countError.message)
         if (count !== null && count >= 4) {
-            throw new Error('Maximum 4 hero projects allowed')
+            throw new Error('Maximum 4 hero projects allowed. Remove one first.')
         }
     }
 

@@ -37,36 +37,6 @@ export async function generateCVAction(data: {
             getUserProjects(userId)
         ])
 
-        // Filter for featured repos first, then top starred ones
-        const relevantRepos = githubRepos
-            .sort((a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0) || b.stars - a.stars)
-            .slice(0, 5)
-
-        // Determine projects
-        let aiProjectsInput: any[] = []
-        if (data.allowAiProjects !== false) {
-             aiProjectsInput = userProjects.map(pr => ({
-                 id: pr.id,
-                 name: pr.name,
-                 description: pr.description,
-                 tech_stack: pr.technologies || [],
-                 url: pr.url,
-                 is_hero: pr.is_hero
-             }))
-        }
-        
-        // Determine certs
-        let aiCertsInput: any[] = []
-        if (data.allowAiCerts !== false) {
-             aiCertsInput = profileData.certificates.map(c => ({
-                 id: c.id,
-                 title: c.title,
-                 issuer: c.issuer,
-                 date: c.issue_date,
-                 url: c.credential_url
-             }))
-        }
-
         const p = profileData.profile
         const context = {
             profile: {
@@ -83,48 +53,61 @@ export async function generateCVAction(data: {
             experience: profileData.experiences,
             education: profileData.education,
             skills: profileData.skills,
-            certificates: aiCertsInput,
-            projects: aiProjectsInput
+            certificates: profileData.certificates.map(c => ({
+                id: c.id,
+                title: c.title,
+                issuer: c.issuer,
+                date: c.issue_date,
+                url: c.credential_url,
+                description: c.description
+            })),
+            projects: userProjects.map(pr => ({
+                id: pr.id,
+                name: pr.name,
+                description: pr.description,
+                tech_stack: pr.technologies || [],
+                url: pr.url,
+                is_hero: pr.is_hero
+            }))
         }
 
         let forcedOptionsText = ''
         
+        // PROJECTS LOGIC — use FORCED_[id] placeholders so route.ts can do exact replacement post-generation
         if (data.forcedProjectIds?.length) {
             const forcedProjects = userProjects.filter(p => data.forcedProjectIds!.includes(p.id))
             if (forcedProjects.length > 0) {
-                forcedOptionsText += `\nFORCED PROJECTS (must appear in CV):\n`
+                forcedOptionsText += `\nThese project slots are pre-filled. Include a placeholder project entry for each one below. Use the name EXACTLY as shown (starting with FORCED_). Do NOT write a description for them — just leave description as an empty string:\n`
                 forcedProjects.forEach(p => {
-                    const customDesc = data.forcedProjectDescriptions?.[p.id]
-                    forcedOptionsText += `- ${p.name}: ${customDesc || "write a tailored description for this role based on the project"}\n`
+                    forcedOptionsText += `- Include a project with name exactly: FORCED_${p.id}\n`
                 })
+                forcedOptionsText += `Do NOT modify these names. Do NOT replace them. Do NOT generate descriptions for them.\n`
             }
         }
         
-        const heroProjects = userProjects.filter(p => p.is_hero)
-        if (heroProjects.length > 0) {
-            forcedOptionsText += `\nHERO PROJECTS (prioritize these when selecting projects):\n`
-            heroProjects.forEach(p => {
-                forcedOptionsText += `- ${p.name}\n`
-            })
+        if (data.allowAiProjects === false) {
+            forcedOptionsText += `\nSTRICT: Only include the pre-filled projects listed above. Do NOT add any other projects.\n`
+        } else {
+            forcedOptionsText += `\nAfter the pre-filled slots above, you MAY add additional relevant projects from the user's profile (up to the total limit).\n`
         }
-        
-        if (data.allowAiProjects !== false) {
-            forcedOptionsText += `\nAI MAY ALSO INCLUDE: Pick additional projects from the full list that best match the job role and title.\n`
-        }
+        forcedOptionsText += `Include a MAXIMUM of 3 projects total in the CV.\n`
 
+        // CERTS LOGIC — use CERT_[id] placeholders so route.ts can do exact replacement post-generation
         if (data.forcedCertIds?.length) {
             const forcedCerts = profileData.certificates.filter(c => data.forcedCertIds!.includes(c.id))
             if (forcedCerts.length > 0) {
-                forcedOptionsText += `\nFORCED CERTIFICATIONS (must appear in CV):\n`
+                forcedOptionsText += `\nMANDATORY: The following certifications MUST appear in the CV. Include a placeholder entry for each one below. Use the title EXACTLY as shown (starting with CERT_):\n`
                 forcedCerts.forEach(c => {
-                    forcedOptionsText += `- ${c.title} from ${c.issuer}\n`
+                    forcedOptionsText += `- Include a certification with title exactly: CERT_${c.id}\n`
                 })
+                forcedOptionsText += `Do NOT modify these titles. If the context already has a description for a certificate, use it EXACTLY as-is. For others, write exactly one line (max 15 words).\n`
             }
         }
         
-        if (data.allowAiCerts !== false) {
-            forcedOptionsText += `\nAI MAY ALSO INCLUDE: Pick additional certifications from the full list that best match the job role.\n`
+        if (data.allowAiCerts === false) {
+            forcedOptionsText += `\nSTRICT: Only include the certifications listed above. Do NOT add any others.\n`
         }
+        forcedOptionsText += `Include a MAXIMUM of 3 certifications total in the CV.\n`
 
         // 3. Generate the CV using the 'smart' model (Claude 3.5 Sonnet)
         const prompt = buildCVGenerationPrompt(context, data.job_description, data.job_title, forcedOptionsText)
@@ -156,7 +139,12 @@ export async function generateCVAction(data: {
             data: {
                 cv_id: savedCV.id,
                 ats_score: savedCV.ats_score,
-                generated_cv: savedCV.generated_cv
+                generated_cv: savedCV.generated_cv,
+                // Pass these so route.ts can do post-AI replacement
+                forcedProjectIds: data.forcedProjectIds || [],
+                forcedProjectDescriptions: data.forcedProjectDescriptions || {},
+                userProjects,
+                userCertificates: profileData.certificates
             },
             message: 'CV tailored and generated successfully!'
         }

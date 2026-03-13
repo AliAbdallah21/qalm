@@ -17,7 +17,8 @@ import {
     ChevronUp,
     ExternalLink,
     Code,
-    Languages
+    Languages,
+    Star
 } from 'lucide-react'
 import type {
     FullProfileData,
@@ -123,6 +124,17 @@ export default function ProfileForms({ initialData, initialProjects, githubRepos
         </div>
     )
 }
+
+// --- Constants ---
+
+const LANGUAGES = [
+    "Arabic", "English", "French", "German", "Spanish", "Italian",
+    "Portuguese", "Russian", "Chinese (Mandarin)", "Chinese (Cantonese)",
+    "Japanese", "Korean", "Turkish", "Persian", "Hebrew", "Hindi",
+    "Urdu", "Bengali", "Dutch", "Swedish", "Norwegian", "Danish",
+    "Finnish", "Polish", "Czech", "Romanian", "Hungarian", "Greek",
+    "Thai", "Vietnamese", "Indonesian", "Malay", "Swahili"
+].sort()
 
 // --- Sub-components ---
 
@@ -787,7 +799,10 @@ function SkillsSection({ skills, onUpdate, loading, setLoading, showNotification
 }
 
 function LanguagesSection({ languages, onUpdate, loading, setLoading, showNotification }: { languages: Language[] } & SectionProps) {
-    const [tempData, setTempData] = useState<Partial<Language>>({ proficiency: 'fluent' })
+    const [tempData, setTempData] = useState<Partial<Language>>({ name: '', proficiency: 'fluent' })
+
+    const existingNames = new Set(languages.map(l => l.name))
+    const availableLanguages = LANGUAGES.filter(l => !existingNames.has(l))
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -802,7 +817,7 @@ function LanguagesSection({ languages, onUpdate, loading, setLoading, showNotifi
             const result = await res.json()
             if (result.error) throw new Error(result.error)
             onUpdate([result.data, ...languages])
-            setTempData({ proficiency: 'fluent' })
+            setTempData({ name: '', proficiency: 'fluent' })
             showNotification('Language added!', 'success')
         } catch (err: any) {
             showNotification(err.message || 'Failed to add language', 'error')
@@ -850,14 +865,17 @@ function LanguagesSection({ languages, onUpdate, loading, setLoading, showNotifi
                 <form onSubmit={handleSave} className="p-8 bg-surface-card border border-border-subtle rounded-[2rem] flex flex-col md:flex-row items-end gap-6">
                     <div className="flex-1 space-y-2">
                         <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Dialect / Language</label>
-                        <input
+                        <select
                             required
-                            type="text"
                             value={tempData.name || ''}
                             onChange={e => setTempData({ ...tempData, name: e.target.value })}
-                            className="w-full px-5 py-3 bg-surface-main border border-border-subtle rounded-2xl outline-none text-sm text-[var(--text-primary)] font-medium"
-                            placeholder="e.g. English"
-                        />
+                            className="w-full px-5 py-3 bg-surface-main border border-border-subtle rounded-2xl outline-none text-sm text-[var(--text-primary)] font-medium cursor-pointer [color-scheme:dark]"
+                        >
+                            <option value="">Select Language</option>
+                            {availableLanguages.map(lang => (
+                                <option key={lang} value={lang}>{lang}</option>
+                            ))}
+                        </select>
                     </div>
                     <div className="w-full md:w-64 space-y-2">
                         <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Neural Fluency</label>
@@ -888,6 +906,28 @@ function LanguagesSection({ languages, onUpdate, loading, setLoading, showNotifi
 
 function CertificatesSection({ certificates, onUpdate, loading, setLoading, showNotification }: { certificates: Certificate[] } & SectionProps) {
     const [tempData, setTempData] = useState<Partial<Certificate>>({})
+
+    const handleToggleHero = async (cert: Certificate) => {
+        setLoading(true)
+        try {
+            const res = await fetch(`/api/profile/certificates/${cert.id}/hero`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ is_hero: !cert.is_hero })
+            })
+            const result = await res.json()
+            if (result.error) throw new Error(result.error)
+            
+            onUpdate(certificates.map(c => 
+                c.id === cert.id ? { ...c, is_hero: !c.is_hero } : c
+            ))
+            showNotification(cert.is_hero ? 'Removed from Hero Certs' : 'Added to Hero Certs', 'success')
+        } catch (err: any) {
+            showNotification(err.message || 'Toggle failed', 'error')
+        } finally {
+            setLoading(false)
+        }
+    }
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -939,6 +979,9 @@ function CertificatesSection({ certificates, onUpdate, loading, setLoading, show
                                 <div className="text-[10px] font-black text-accent-blue uppercase tracking-widest bg-accent-blue/5 px-3 py-1 rounded-lg border border-accent-blue/10 inline-block mt-2">
                                     Issued: {cert.issue_date}
                                 </div>
+                                {cert.description && (
+                                    <p className="text-xs text-text-muted mt-2 border-l-2 border-border-subtle pl-3 py-1">{cert.description}</p>
+                                )}
                                 {cert.credential_url && (
                                     <a href={cert.credential_url} target="_blank" rel="noreferrer"
                                         className="text-[10px] font-black text-accent-blue uppercase tracking-widest hover:underline flex items-center gap-1 mt-1">
@@ -946,12 +989,21 @@ function CertificatesSection({ certificates, onUpdate, loading, setLoading, show
                                     </a>
                                 )}
                             </div>
-                            <button
-                                onClick={() => handleDelete(cert.id)}
-                                className="text-text-muted hover:text-danger hover:bg-danger/10 p-2 rounded-xl border border-border-subtle bg-surface-card transition-all"
-                            >
-                                <Trash2 size={16} />
-                            </button>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => handleToggleHero(cert)}
+                                    className={`p-2 rounded-xl border transition-all ${cert.is_hero ? 'bg-warning/10 text-warning border-warning/20' : 'bg-surface-card text-text-muted border-border-subtle hover:text-warning'}`}
+                                    title={cert.is_hero ? "Remove Hero Status" : "Make Hero Certificate"}
+                                >
+                                    <Star size={16} className={cert.is_hero ? "fill-warning" : ""} />
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(cert.id)}
+                                    className="text-text-muted hover:text-danger hover:bg-danger/10 p-2 rounded-xl border border-border-subtle bg-surface-card transition-all"
+                                >
+                                    <Trash2 size={16} />
+                                </button>
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -998,6 +1050,22 @@ function CertificatesSection({ certificates, onUpdate, loading, setLoading, show
                                 onChange={e => setTempData({ ...tempData, credential_url: e.target.value })}
                                 className="w-full px-5 py-3 bg-surface-main border border-border-subtle rounded-2xl outline-none text-sm text-[var(--text-primary)] font-medium shadow-inner"
                                 placeholder="https://www.credly.com/badges/..."
+                            />
+                        </div>
+                        <div className="space-y-2 col-span-full">
+                            <div className="flex justify-between items-center">
+                                <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Short description (one line)</label>
+                                <span className={`text-[10px] font-bold ${(tempData.description?.length || 0) > 120 ? 'text-danger' : 'text-text-muted'}`}>
+                                    {tempData.description?.length || 0}/120
+                                </span>
+                            </div>
+                            <input
+                                type="text"
+                                maxLength={120}
+                                value={tempData.description || ''}
+                                onChange={e => setTempData({ ...tempData, description: e.target.value })}
+                                className="w-full px-5 py-3 bg-surface-main border border-border-subtle rounded-2xl outline-none text-sm text-[var(--text-primary)] font-medium shadow-inner"
+                                placeholder="e.g. Advanced RAG architectures and multi-agent systems"
                             />
                         </div>
                         <div className="flex items-end col-span-full">

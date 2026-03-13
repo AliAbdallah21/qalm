@@ -36,7 +36,7 @@ export async function getFullProfile(userId: string): Promise<FullProfileData> {
             .order('name', { ascending: true }),
         supabase
             .from('certificates')
-            .select('id, user_id, title, issuer, issue_date, expiry_date, credential_url, description, created_at')
+            .select('id, user_id, title, issuer, issue_date, expiry_date, credential_url, description, is_hero, created_at')
             .eq('user_id', userId)
             .order('issue_date', { ascending: false }),
         supabase
@@ -259,13 +259,25 @@ export async function createLanguage(userId: string, data: Partial<Language>): P
 export async function deleteLanguage(userId: string, id: string): Promise<void> {
     const supabase = await createServerClient()
     const { error } = await supabase
-        .from('languages')
-        .delete()
+    .from('languages')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', userId)
+
+    if (error) throw error
+}
+
+export async function toggleCertificateHero(userId: string, id: string, isHero: boolean): Promise<void> {
+    const supabase = await createServerClient()
+    const { error } = await supabase
+        .from('certificates')
+        .update({ is_hero: isHero })
         .eq('id', id)
         .eq('user_id', userId)
 
     if (error) throw error
 }
+
 export async function getProfileByEmail(email: string, client?: SupabaseClient): Promise<Profile | null> {
     const supabase = client || await createServerClient()
     const { data, error } = await supabase

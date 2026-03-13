@@ -59,8 +59,48 @@ export async function POST(request: Request) {
             return Response.json({ error: result.error || 'Generation failed', code: result.code }, { status: 400 })
         }
 
-        const { cv_id, generated_cv } = result.data
+        const { 
+            cv_id, 
+            generated_cv, 
+            forcedProjectIds: resolvedForcedIds, 
+            forcedProjectDescriptions: resolvedForcedDescs, 
+            userProjects,
+            userCertificates
+        } = result.data
         generated_cv.header.title = job_title // Force exact user input
+
+        // Post-AI replacement: swap FORCED_[id] placeholders with real project data
+        if (resolvedForcedIds?.length && userProjects?.length) {
+            generated_cv.projects = generated_cv.projects.map((proj: any) => {
+                if (!proj.name.startsWith('FORCED_')) return proj
+                const id = proj.name.replace('FORCED_', '')
+                const realProject = userProjects.find((p: any) => p.id === id)
+                if (!realProject) return proj // keep placeholder if lookup fails
+                return {
+                    name: realProject.name,
+                    description: resolvedForcedDescs?.[id] || realProject.description || '',
+                    tech_stack: realProject.technologies || [],
+                    url: realProject.url || ''
+                }
+            })
+        }
+
+        // Post-AI replacement: swap CERT_[id] placeholders with real certification data
+        if (userCertificates?.length) {
+            generated_cv.certificates = generated_cv.certificates.map((cert: any) => {
+                if (!cert.title.startsWith('CERT_')) return cert
+                const id = cert.title.replace('CERT_', '')
+                const realCert = userCertificates.find((c: any) => c.id === id)
+                if (!realCert) return cert
+                return {
+                    title: realCert.title,
+                    issuer: realCert.issuer,
+                    date: realCert.issue_date || '',
+                    description: realCert.description || cert.description || '',
+                    url: realCert.credential_url || ''
+                }
+            })
+        }
 
         // generate ATS Breakdown first
         let atsBreakdown: ATSBreakdown | null = null;

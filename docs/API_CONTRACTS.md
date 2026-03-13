@@ -197,7 +197,7 @@ DELETE /api/profile/certificates/[id]
   "issue_date": "2024-11-01",
   "expiry_date": null,
   "credential_url": "https://coursera.org/...",
-  "description": "..."
+  "description": "Short one-line description of the certification content"
 }
 ```
 

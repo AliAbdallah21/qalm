@@ -35,11 +35,14 @@ export function buildSkillsLatex(skills: { categories: CVSkillCategory[] }): str
 
 export function buildCertificatesLatex(certificates: CVCertificate[]): string {
   if (!certificates || certificates.length === 0) return '';
-  return `\\section{Certifications}\n` + certificates.map(cert => `
-\\certcventry{${cert.url || 'https://github.com'}}{${escapeLatex(cert.title)}}{${escapeLatex(cert.issuer)}}{
-\\begin{itemize}[leftmargin=0.6cm, label={\\textbullet}]
-\\item ${escapeLatex(cert.date)}
-\\end{itemize}}`).join('\n');
+  return `\\section{Certifications}\n` + certificates.map(cert => {
+    const displayText = cert.description 
+      ? (cert.description.length > 120 ? cert.description.substring(0, 117) + '...' : cert.description)
+      : cert.date;
+      
+    // Format: Title, Issuer: Description (or Date) — NO BULLETS
+    return `\\certcventry{${cert.url || 'https://github.com'}}{${escapeLatex(cert.title)}}{${escapeLatex(cert.issuer)}}{${escapeLatex(displayText)}}`;
+  }).join('\n');
 }
 
 export function buildEducationLatex(education: CVEducation[], location: string): string {

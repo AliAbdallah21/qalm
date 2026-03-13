@@ -24,6 +24,7 @@ The `canUserAccess()` function in `src/lib/access/permissions.ts` is the single 
 | github_sync            | GitHub Repo Sync             | 1     | ✅ ENABLED   | free          |
 | github_featured        | Mark Repos as Featured       | 1     | ✅ ENABLED   | free          |
 | cv_generation          | AI CV Generation             | 1     | ✅ ENABLED   | free          |
+  *(Note: Auto-disables additional AI picks when 3+ items are manually selected)*
 | cv_download_pdf        | Download CV as PDF           | 1     | ✅ ENABLED   | free          |
 | cv_history             | View Past Generated CVs      | 1     | ✅ ENABLED   | free          |
 | dashboard_completeness | Profile Completeness Score   | 1     | ✅ ENABLED   | free          |

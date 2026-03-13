@@ -50,9 +50,29 @@ export default function CvBuilderPage() {
     // Generation Options state
     const [allowAiProjects, setAllowAiProjects] = useState(true)
     const [allowAiCerts, setAllowAiCerts] = useState(true)
+    const [userPrefAllowAiProjects, setUserPrefAllowAiProjects] = useState(true)
+    const [userPrefAllowAiCerts, setUserPrefAllowAiCerts] = useState(true)
     const [forcedProjectIds, setForcedProjectIds] = useState<string[]>([])
     const [forcedProjectDescriptions, setForcedProjectDescriptions] = useState<Record<string, string>>({})
     const [forcedCertIds, setForcedCertIds] = useState<string[]>([])
+
+    // Sync AI Projects toggle
+    useEffect(() => {
+        if (forcedProjectIds.length >= 3) {
+            setAllowAiProjects(false)
+        } else {
+            setAllowAiProjects(userPrefAllowAiProjects)
+        }
+    }, [forcedProjectIds.length, userPrefAllowAiProjects])
+
+    // Sync AI Certs toggle
+    useEffect(() => {
+        if (forcedCertIds.length >= 3) {
+            setAllowAiCerts(false)
+        } else {
+            setAllowAiCerts(userPrefAllowAiCerts)
+        }
+    }, [forcedCertIds.length, userPrefAllowAiCerts])
 
     const fetchProfileData = async () => {
         try {
@@ -439,11 +459,15 @@ export default function CvBuilderPage() {
                                 <div className="flex items-center justify-between px-1">
                                     <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted">Featured Projects</label>
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[10px] font-bold text-text-muted uppercase">Let AI pick extras</span>
+                                        {forcedProjectIds.length >= 3 && (
+                                            <span className="text-[10px] font-black text-accent-blue uppercase animate-pulse">Maximum 3 projects selected</span>
+                                        )}
+                                        <span className={`text-[10px] font-bold uppercase ${forcedProjectIds.length >= 3 ? 'text-text-muted opacity-50' : 'text-text-muted'}`}>Let AI pick extras</span>
                                         <button
                                             type="button"
-                                            onClick={() => setAllowAiProjects(!allowAiProjects)}
-                                            className={`w-8 h-4 rounded-full transition-all relative ${allowAiProjects ? 'bg-accent-blue' : 'bg-border-subtle'}`}
+                                            disabled={forcedProjectIds.length >= 3}
+                                            onClick={() => setUserPrefAllowAiProjects(!userPrefAllowAiProjects)}
+                                            className={`w-8 h-4 rounded-full transition-all relative ${allowAiProjects ? 'bg-accent-blue' : 'bg-border-subtle'} ${forcedProjectIds.length >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         >
                                             <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${allowAiProjects ? 'right-0.5' : 'left-0.5'}`} />
                                         </button>
@@ -508,11 +532,15 @@ export default function CvBuilderPage() {
                                 <div className="flex items-center justify-between px-1">
                                     <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted">Featured Certifications</label>
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[10px] font-bold text-text-muted uppercase">Let AI pick extras</span>
+                                        {forcedCertIds.length >= 3 && (
+                                            <span className="text-[10px] font-black text-accent-blue uppercase animate-pulse">Maximum 3 certifications selected</span>
+                                        )}
+                                        <span className={`text-[10px] font-bold uppercase ${forcedCertIds.length >= 3 ? 'text-text-muted opacity-50' : 'text-text-muted'}`}>Let AI pick extras</span>
                                         <button
                                             type="button"
-                                            onClick={() => setAllowAiCerts(!allowAiCerts)}
-                                            className={`w-8 h-4 rounded-full transition-all relative ${allowAiCerts ? 'bg-accent-blue' : 'bg-border-subtle'}`}
+                                            disabled={forcedCertIds.length >= 3}
+                                            onClick={() => setUserPrefAllowAiCerts(!userPrefAllowAiCerts)}
+                                            className={`w-8 h-4 rounded-full transition-all relative ${allowAiCerts ? 'bg-accent-blue' : 'bg-border-subtle'} ${forcedCertIds.length >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         >
                                             <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${allowAiCerts ? 'right-0.5' : 'left-0.5'}`} />
                                         </button>
