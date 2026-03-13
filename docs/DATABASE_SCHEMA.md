@@ -224,6 +224,135 @@ updated_at         timestamptz DEFAULT now()
 
 ---
 
+## cv_generation_job_match
+
+Captures ML signals related to CV generation and job applications at the time of submission.
+
+```sql
+id                      uuid PRIMARY KEY DEFAULT gen_random_uuid()
+user_id                 uuid REFERENCES auth.users(id) ON DELETE CASCADE
+cv_generation_id        uuid REFERENCES cv_generations(id) ON DELETE CASCADE
+job_application_id      uuid REFERENCES job_applications(id) ON DELETE CASCADE
+ats_score_at_submit      integer         -- score at the moment of application
+missing_keywords        jsonb           -- keywords missing in CV for this JD
+skill_overlap_pct       numeric         -- calculated overlap percentage
+cv_word_count           integer
+jd_word_count           integer
+days_since_last_cv      integer         -- freshness of the CV
+company_name            text
+company_industry        text
+job_seniority           text
+job_location_type       text            -- remote | hybrid | on-site
+outcome                 text            -- interview | offer | reject | ghosted
+outcome_updated_at      timestamptz
+days_to_response        integer         -- diff between applied_date and outcome_updated_at
+created_at              timestamptz DEFAULT now()
+updated_at              timestamptz DEFAULT now()
+```
+
+---
+
+## user_skill_snapshot
+
+Captured upon every job application to provide a temporal record of a user's skills.
+
+```sql
+id                      uuid PRIMARY KEY DEFAULT gen_random_uuid()
+user_id                 uuid REFERENCES auth.users(id) ON DELETE CASCADE
+job_application_id      uuid REFERENCES job_applications(id) ON DELETE CASCADE
+skills_snapshot         jsonb           -- full skill array at submission time
+total_skill_count       integer
+expert_skill_count      integer
+ai_ml_skill_count       integer
+backend_skill_count     integer
+frontend_skill_count    integer
+devops_skill_count      integer
+total_months_experience integer         -- cumulative duration of all experiences
+job_count               integer         -- record count in experiences table
+created_at              timestamptz DEFAULT now()
+```
+
+---
+
+## skill_acquisition_events
+
+Logs every time a skill is added to track how users grow their profiles.
+
+```sql
+id                      uuid PRIMARY KEY DEFAULT gen_random_uuid()
+user_id                 uuid REFERENCES auth.users(id) ON DELETE CASCADE
+skill_name              text NOT NULL
+skill_category          text
+source                  text            -- user_added | qalm_recommended | linkedin_import | github_detected
+recommendation_reason   text
+estimated_impact        text
+recommended_at          timestamptz
+apps_30d_before         integer
+apps_30d_after          integer
+response_rate_before    numeric
+response_rate_after     numeric
+created_at              timestamptz DEFAULT now()
+```
+
+---
+
+## application_sessions
+
+Aggregates daily user activity for ML velocity signals.
+
+```sql
+id                      uuid PRIMARY KEY DEFAULT gen_random_uuid()
+user_id                 uuid REFERENCES auth.users(id) ON DELETE CASCADE
+session_date            date NOT NULL
+applications_submitted  integer DEFAULT 0
+cvs_generated           integer DEFAULT 0
+profile_edits           integer DEFAULT 0
+skills_added            integer DEFAULT 0
+applications_last_7d    integer DEFAULT 0
+applications_last_30d   integer DEFAULT 0
+created_at              timestamptz DEFAULT now()
+updated_at              timestamptz DEFAULT now()
+UNIQUE (user_id, session_date)
+```
+
+---
+
+## ml_user_features
+
+Denormalized feature store for offline ML training. Updated periodically or on-demand.
+
+```sql
+id                      uuid PRIMARY KEY DEFAULT gen_random_uuid()
+user_id                 uuid REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE
+total_months_experience integer
+job_count               integer
+has_degree              boolean
+degree_field_category   text
+career_level            text
+total_skills            integer
+expert_skills           integer
+ai_ml_skills            integer
+top_skill_categories    jsonb
+total_applications      integer
+total_interviews        integer
+total_offers            integer
+total_rejections        integer
+overall_response_rate   numeric
+interview_to_offer_rate numeric
+avg_ats_score           numeric
+days_since_first_apply  integer
+days_since_last_apply   integer
+applications_last_7d    integer
+applications_last_30d   integer
+active_job_search       boolean
+user_segment            text
+features_computed_at    timestamptz
+created_at              timestamptz DEFAULT now()
+updated_at              timestamptz DEFAULT now()
+```
+
+---
+
 # Row Level Security Policies
 
 Every table has RLS enabled. The pattern is identical for all tables:

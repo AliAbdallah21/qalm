@@ -193,6 +193,26 @@ export async function createSkill(userId: string, data: Partial<Skill>): Promise
         .single()
 
     if (error) throw error
+
+    // ML Instrumentation: Track skill acquisition (awaited for serverless safety)
+    try {
+        await supabase.from('skill_acquisition_events').insert({
+            user_id: userId,
+            skill_name: created.name,
+            skill_category: created.category ?? null,
+            source: 'user_added',
+            recommendation_reason: null,
+            estimated_impact: null,
+            recommended_at: null,
+            apps_30d_before: null,
+            apps_30d_after: null,
+            response_rate_before: null,
+            response_rate_after: null
+        })
+    } catch (mlError) {
+        console.error('[ML] skill_acquisition_events insert failed:', mlError)
+    }
+
     return created as Skill
 }
 

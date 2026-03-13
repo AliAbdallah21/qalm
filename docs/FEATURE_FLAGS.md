@@ -44,6 +44,12 @@ The `canUserAccess()` function in `src/lib/access/permissions.ts` is the single 
 | analytics_patterns     | Application Pattern Insights | 4     | 🔒 DISABLED | pro           |
 | outlook_connect        | Connect Outlook Account      | 4+    | 🔒 DISABLED | free          |
 | monetization           | Stripe Payments              | 4+    | 🔒 DISABLED | —             |
+| **ML Instrumentation** | **Side Effects (Phase 0)**   | **—** | **—**       | **—**         |
+| ml_skill_snapshot      | Capture skill snapshot       | 0     | ✅ ENABLED   | internal      |
+| ml_cv_match_snapshot   | Capture CV match on apply    | 0     | ✅ ENABLED   | internal      |
+| ml_skill_events        | Track skill acquisition      | 0     | ✅ ENABLED   | internal      |
+| ml_session_tracking    | Daily session activity       | 0     | ✅ ENABLED   | internal      |
+| ml_user_features       | Denormalized feature store   | 0     | 🔒 DISABLED | internal      |
 
 ---
 

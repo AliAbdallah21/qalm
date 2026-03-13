@@ -184,3 +184,114 @@ export async function getApplicationStats(userId: string): Promise<{
         rejected: data.filter(r => r.status === 'rejected').length,
     }
 }
+
+export async function captureMLSnapshots(userId: string, application: JobApplication): Promise<void> {
+    try {
+        await captureSkillSnapshot(userId, application.id)
+        
+        if (application.cv_generation_id) {
+            await captureCvMatchSnapshot(userId, application.id, application.cv_generation_id, application.company)
+        }
+    } catch (error) {
+        console.error('[ML] captureMLSnapshots failed:', error)
+    }
+}
+
+async function captureSkillSnapshot(userId: string, appId: string): Promise<void> {
+    const supabase = await createServerClient()
+    
+    // 1. Fetch skills
+    const { data: skills } = await supabase
+        .from('skills')
+        .select('id, name, level, category, years_experience')
+        .eq('user_id', userId)
+
+    if (!skills) return
+
+    // 2. Fetch experiences
+    const { data: experiences } = await supabase
+        .from('experiences')
+        .select('start_date, end_date')
+        .eq('user_id', userId)
+
+    // 3. Logic
+    const aiMlRegex = /\b(python|tensorflow|pytorch|machine learning|deep learning|nlp|llm|ai|ml|data science|scikit|keras|huggingface)\b/i
+    const backendRegex = /\b(node|express|django|fastapi|rails|spring|laravel|postgresql|mysql|mongodb|redis|api|rest|graphql)\b/i
+    const frontendRegex = /\b(react|vue|angular|nextjs|typescript|javascript|html|css|tailwind|svelte)\b/i
+    const devopsRegex = /\b(docker|kubernetes|aws|gcp|azure|ci\/cd|github actions|terraform|linux|nginx)\b/i
+
+    const ai_ml_skill_count = skills.filter(s => s.category === 'AI/ML' || aiMlRegex.test(s.name)).length
+    const backend_skill_count = skills.filter(s => s.category === 'Backend' || backendRegex.test(s.name)).length
+    const frontend_skill_count = skills.filter(s => s.category === 'Frontend' || frontendRegex.test(s.name)).length
+    const devops_skill_count = skills.filter(s => s.category === 'DevOps' || devopsRegex.test(s.name)).length
+
+    let total_months_experience = 0
+    if (experiences) {
+        const now = new Date()
+        experiences.forEach(exp => {
+            const start = new Date(exp.start_date)
+            const end = exp.end_date ? new Date(exp.end_date) : now
+            const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth())
+            total_months_experience += Math.max(0, months)
+        })
+    }
+
+    // 4. Insert
+    await supabase.from('user_skill_snapshot').insert({
+        user_id: userId,
+        job_application_id: appId,
+        skills_snapshot: skills,
+        total_skill_count: skills.length,
+        expert_skill_count: skills.filter(s => s.level === 'expert').length,
+        ai_ml_skill_count,
+        backend_skill_count,
+        frontend_skill_count,
+        devops_skill_count,
+        total_months_experience,
+        job_count: experiences?.length ?? 0
+    })
+}
+
+async function captureCvMatchSnapshot(userId: string, appId: string, cvGenId: string, companyName: string): Promise<void> {
+    const supabase = await createServerClient()
+    
+    // 1. Fetch CV data
+    const { data: cv } = await supabase
+        .from('cv_generations')
+        .select('ats_score, created_at')
+        .eq('id', cvGenId)
+        .single()
+
+    if (!cv) return
+
+    // 2. Fetch previous CV
+    const { data: prevCv } = await supabase
+        .from('cv_generations')
+        .select('created_at')
+        .eq('user_id', userId)
+        .neq('id', cvGenId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+
+    const previousRecord = Array.isArray(prevCv) ? prevCv[0] : prevCv
+
+    // 3. Logic
+    let days_since_last_cv = null
+    if (previousRecord) {
+        const current = new Date(cv.created_at)
+        const previous = new Date(previousRecord.created_at)
+        const diffInMs = Math.abs(current.getTime() - previous.getTime())
+        days_since_last_cv = Math.floor(diffInMs / (1000 * 60 * 60 * 24))
+    }
+
+    // 4. Insert
+    await supabase.from('cv_generation_job_match').insert({
+        user_id: userId,
+        cv_generation_id: cvGenId,
+        job_application_id: appId,
+        ats_score_at_submit: cv.ats_score,
+        company_name: companyName,
+        outcome: null,
+        days_since_last_cv
+    })
+}

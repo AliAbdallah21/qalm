@@ -353,6 +353,12 @@ DELETE /api/jobs/[id]
 }
 ```
 
+#### Side Effects (Silent)
+After successful application creation, the following instrumentation runs:
+- `captureMLSnapshots(userId, application)` — awaited, non-blocking to response.
+- `application_sessions` upsert — awaited, non-blocking to response.
+These side effects never affect the response body or status code.
+
 ---
 
 # Email Intelligence (Phase 3)

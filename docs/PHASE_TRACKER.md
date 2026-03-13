@@ -221,6 +221,24 @@
 
 ---
 
+---
+
+# ML Instrumentation — Phase 0 ✅ COMPLETE
+
+**Goal:** Capture atomic snapshots of every meaningful user action for future ML model training.
+
+**Completed:** March 13, 2026
+
+* [x] Migration 012 — 5 ML tables created in Supabase
+* [x] captureMLSnapshots() added to features/job-tracker/queries.ts
+* [x] captureSkillSnapshot() — inserts into user_skill_snapshot on every job application
+* [x] captureCvMatchSnapshot() — inserts into cv_generation_job_match on every job application (only when cv_generation_id present)
+* [x] captureMLSnapshots called with await in POST /api/jobs/route.ts
+* [x] skill_acquisition_events insert added to createSkill in features/profile/queries.ts
+* [x] application_sessions upsert added to POST /api/jobs/route.ts with manual increment logic
+
+---
+
 # Phase 4 — Analytics & Intelligence 🚧 IN PROGRESS
 
 **Goal:** Turn job hunting data into insights. Add paid tier.
